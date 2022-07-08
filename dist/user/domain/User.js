@@ -15,10 +15,6 @@ const Photo_1 = require("./Photo");
 let User = class User extends index_1.BaseEntity {
 };
 __decorate([
-    (0, index_1.PrimaryGeneratedColumn)(),
-    __metadata("design:type", Number)
-], User.prototype, "id", void 0);
-__decorate([
     (0, index_1.PrimaryColumn)(),
     __metadata("design:type", String)
 ], User.prototype, "userId", void 0);

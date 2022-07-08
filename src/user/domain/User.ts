@@ -6,8 +6,8 @@ import { Photo } from './Photo';
 export class User extends BaseEntity{
   // @PrimaryGeneratedColumn('increment')
   // @PrimaryGeneratedColumn('uuid')
-  @PrimaryGeneratedColumn()
-  id: number;
+  // @PrimaryGeneratedColumn()
+  // id: number;
   // @Column()
   @PrimaryColumn()
   userId: string;
