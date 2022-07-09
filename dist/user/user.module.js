@@ -13,11 +13,15 @@ const user_service_1 = require("./user.service");
 const typeorm_1 = require("@nestjs/typeorm");
 const User_1 = require("./domain/User");
 const Photo_1 = require("./domain/Photo");
+const Travel_1 = require("./domain/Travel");
+const TravelSpend_1 = require("./domain/TravelSpend");
+const UserSpend_1 = require("./domain/UserSpend");
+const TravelUserPair_1 = require("./domain/TravelUserPair");
 let UserModule = class UserModule {
 };
 UserModule = __decorate([
     (0, common_1.Module)({
-        imports: [typeorm_1.TypeOrmModule.forFeature([User_1.User, Photo_1.Photo])],
+        imports: [typeorm_1.TypeOrmModule.forFeature([User_1.User, Photo_1.Photo, Travel_1.Travel, TravelSpend_1.TravelSpend, UserSpend_1.UserSpend, TravelUserPair_1.TravelUserPair])],
         controllers: [user_controller_1.UserController],
         providers: [user_service_1.UserService],
     })

@@ -3,7 +3,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { Photo } from './user/domain/Photo';
+import { Travel } from './user/domain/Travel';
+import { TravelSpend } from './user/domain/TravelSpend';
+import { TravelUserPair } from './user/domain/TravelUserPair';
 import { User } from './user/domain/User';
+import { UserSpend } from './user/domain/UserSpend';
 import { UserModule } from './user/user.module';
 
 
@@ -15,7 +19,7 @@ import { UserModule } from './user/user.module';
     username: 'root',
     password: 'madcampcs496',
     database: 'test',
-    entities: [User, Photo],
+    entities: [User, Photo, Travel, TravelSpend, UserSpend, TravelUserPair],
     synchronize: true,
   }),
      UserModule],

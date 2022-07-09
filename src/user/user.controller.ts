@@ -5,20 +5,10 @@ import { UserService } from './user.service';
 import { User } from './domain/User';
 @Controller('user')
 export class UserController {
-  userKey: number;
   constructor(
     private userService: UserService,
-    // private testService: TestService
   ) {
     this.userService = userService;
-    this.userKey =0;
-    // this.testService = testService;
-  }
-  generateUserId() : number{
-    this.userKey  = this.userKey + 1;
-    console.log(`generated Key is : ${this.userKey}`);
-    return this.userKey;
-
   }
   // @Get('test')
   // findAnotherTest(): string {

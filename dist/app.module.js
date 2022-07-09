@@ -12,7 +12,11 @@ const typeorm_1 = require("@nestjs/typeorm");
 const app_controller_1 = require("./app.controller");
 const app_service_1 = require("./app.service");
 const Photo_1 = require("./user/domain/Photo");
+const Travel_1 = require("./user/domain/Travel");
+const TravelSpend_1 = require("./user/domain/TravelSpend");
+const TravelUserPair_1 = require("./user/domain/TravelUserPair");
 const User_1 = require("./user/domain/User");
+const UserSpend_1 = require("./user/domain/UserSpend");
 const user_module_1 = require("./user/user.module");
 let AppModule = class AppModule {
 };
@@ -25,7 +29,7 @@ AppModule = __decorate([
                 username: 'root',
                 password: 'madcampcs496',
                 database: 'test',
-                entities: [User_1.User, Photo_1.Photo],
+                entities: [User_1.User, Photo_1.Photo, Travel_1.Travel, TravelSpend_1.TravelSpend, UserSpend_1.UserSpend, TravelUserPair_1.TravelUserPair],
                 synchronize: true,
             }),
             user_module_1.UserModule],

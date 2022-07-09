@@ -17,12 +17,22 @@ const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const User_1 = require("./domain/User");
 const index_1 = require("typeorm/index");
+const Travel_1 = require("./domain/Travel");
+const TravelUserPair_1 = require("./domain/TravelUserPair");
+const TravelSpend_1 = require("./domain/TravelSpend");
+const UserSpend_1 = require("./domain/UserSpend");
 let UserService = class UserService {
-    constructor(userRepository, connection) {
+    constructor(userRepository, travelRepository, travelUserPairRepository, travelSpendRepository, userSpendRepository) {
         this.userRepository = userRepository;
-        this.connection = connection;
-        this.connection = connection;
+        this.travelRepository = travelRepository;
+        this.travelUserPairRepository = travelUserPairRepository;
+        this.travelSpendRepository = travelSpendRepository;
+        this.userSpendRepository = userSpendRepository;
         this.userRepository = userRepository;
+        this.travelRepository = travelRepository;
+        this.travelUserPairRepository = travelUserPairRepository;
+        this.travelSpendRepository = travelSpendRepository;
+        this.userSpendRepository = userSpendRepository;
     }
     findAll() {
         return this.userRepository.find();
@@ -38,32 +48,19 @@ let UserService = class UserService {
     async deleteUser(id) {
         await this.userRepository.delete({ userId: id });
     }
-    async createUsers(users) {
-        let isSuccess = true;
-        const queryRunner = this.connection.createQueryRunner();
-        await queryRunner.connect();
-        await queryRunner.startTransaction();
-        try {
-            await queryRunner.manager.save(users[0]);
-            await queryRunner.manager.save(users[1]);
-            await queryRunner.commitTransaction();
-        }
-        catch (err) {
-            console.log('Rollback 실행..');
-            await queryRunner.rollbackTransaction();
-            isSuccess = false;
-        }
-        finally {
-            await queryRunner.release();
-            return isSuccess;
-        }
-    }
 };
 UserService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(User_1.User)),
+    __param(1, (0, typeorm_1.InjectRepository)(Travel_1.Travel)),
+    __param(2, (0, typeorm_1.InjectRepository)(TravelUserPair_1.TravelUserPair)),
+    __param(3, (0, typeorm_1.InjectRepository)(TravelSpend_1.TravelSpend)),
+    __param(4, (0, typeorm_1.InjectRepository)(UserSpend_1.UserSpend)),
     __metadata("design:paramtypes", [index_1.Repository,
-        index_1.Connection])
+        index_1.Repository,
+        index_1.Repository,
+        index_1.Repository,
+        index_1.Repository])
 ], UserService);
 exports.UserService = UserService;
 //# sourceMappingURL=user.service.js.map

@@ -20,12 +20,6 @@ let UserController = class UserController {
     constructor(userService) {
         this.userService = userService;
         this.userService = userService;
-        this.userKey = 0;
-    }
-    generateUserId() {
-        this.userKey = this.userKey + 1;
-        console.log(`generated Key is : ${this.userKey}`);
-        return this.userKey;
     }
     async findAll() {
         const userList = await this.userService.findAll();

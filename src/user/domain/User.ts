@@ -1,5 +1,7 @@
 import { BaseEntity, Column, Entity, OneToMany, PrimaryColumn, PrimaryGeneratedColumn, Unique } from 'typeorm/index';
 import { Photo } from './Photo';
+import { TravelUserPair } from './TravelUserPair';
+import { UserSpend } from './UserSpend';
 @Entity()
 
 @Unique(['userId'])
@@ -21,4 +23,8 @@ export class User extends BaseEntity{
   isActive: boolean;
   @OneToMany(type => Photo, photo => photo.user)
   photos: Photo[]
+  @OneToMany(type => UserSpend, userSpend => userSpend.user)
+  userSpends: UserSpend[]
+  @OneToMany(type => TravelUserPair, travelUserPair => travelUserPair.user)
+  travelUserPairs: TravelUserPair[]
 }

@@ -12,6 +12,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.User = void 0;
 const index_1 = require("typeorm/index");
 const Photo_1 = require("./Photo");
+const TravelUserPair_1 = require("./TravelUserPair");
+const UserSpend_1 = require("./UserSpend");
 let User = class User extends index_1.BaseEntity {
 };
 __decorate([
@@ -38,6 +40,14 @@ __decorate([
     (0, index_1.OneToMany)(type => Photo_1.Photo, photo => photo.user),
     __metadata("design:type", Array)
 ], User.prototype, "photos", void 0);
+__decorate([
+    (0, index_1.OneToMany)(type => UserSpend_1.UserSpend, userSpend => userSpend.user),
+    __metadata("design:type", Array)
+], User.prototype, "userSpends", void 0);
+__decorate([
+    (0, index_1.OneToMany)(type => TravelUserPair_1.TravelUserPair, travelUserPair => travelUserPair.user),
+    __metadata("design:type", Array)
+], User.prototype, "travelUserPairs", void 0);
 User = __decorate([
     (0, index_1.Entity)(),
     (0, index_1.Unique)(['userId'])
