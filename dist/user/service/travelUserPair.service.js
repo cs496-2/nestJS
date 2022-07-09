@@ -51,6 +51,35 @@ let TravelUserPairService = class TravelUserPairService {
             }
         });
     }
+    async findWithTravelCondition(travelId) {
+        return await this.travelUserPairRepository.find({
+            loadRelationIds: {
+                relations: [
+                    'travel',
+                    'user'
+                ],
+                disableMixedMap: true
+            },
+            where: {
+                travel: { travelId: travelId }
+            }
+        });
+    }
+    async findWithUserTravelCondition(userId, travelId) {
+        return await this.travelUserPairRepository.findOne({
+            loadRelationIds: {
+                relations: [
+                    'travel',
+                    'user'
+                ],
+                disableMixedMap: true
+            },
+            where: {
+                user: { userId: userId },
+                travel: { travelId: travelId }
+            }
+        });
+    }
     findOne(id) {
         return this.travelUserPairRepository.findOne({ where: {
                 travelUserPairId: id

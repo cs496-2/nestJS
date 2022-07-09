@@ -10,9 +10,9 @@ export declare class TravelSpendService {
     private travelSpendRepository;
     private userSpendRepository;
     constructor(userRepository: Repository<User>, travelRepository: Repository<Travel>, travelUserPairRepository: Repository<User>, travelSpendRepository: Repository<TravelSpend>, userSpendRepository: Repository<UserSpend>);
-    findAll(): Promise<Travel[]>;
+    findAll(): Promise<TravelSpend[]>;
     findWithTravelCondition(travelId: number): Promise<TravelSpend[]>;
-    findOne(id: number): Promise<Travel>;
-    saveTravel(travel: Travel): Promise<void>;
-    deleteTravel(id: number): Promise<void>;
+    findOne(id: number): Promise<TravelSpend>;
+    saveTravelSpend(travelSpend: TravelSpend): Promise<void>;
+    deleteTravelSpend(id: number): Promise<void>;
 }

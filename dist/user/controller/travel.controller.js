@@ -58,36 +58,38 @@ let TravelController = class TravelController {
         await this.userService.saveUser(user);
         return this.findAllTravel(userId);
     }
-    async getStats(travelId, userId) {
+    async addUserToTravel(userId, travelId, addedUserId) {
         (0, auth_1.validateToken)();
-        const travelSpendList = await this.travelSpendService.findWithTravelCondition(travelId);
-        const userSpendList = await this.userSpendService.findWithUserTravelCondition(travelId, userId);
-        return Object.assign({
-            data: {
-                travelSpendList,
-                userSpendList
-            },
-            statusCode: 200,
-            statusMsg: `데이터 조회가 성공적으로 완료되었습니다.`,
-        });
+        const addedUser = await this.userService.findOne(addedUserId);
+        const addedTravel = await this.travelService.findOne(travelId);
+        const addedTravelUserPair = new TravelUserPair_1.TravelUserPair();
+        addedTravelUserPair.travel = addedTravel;
+        addedTravelUserPair.user = addedUser;
+        addedTravelUserPair.personalTotalSpend = 0;
+        addedTravelUserPair.personalMealSpend = 0;
+        addedTravelUserPair.personalShopSpend = 0;
+        addedTravelUserPair.personalTourSpend = 0;
+        addedTravelUserPair.personalTransportSpend = 0;
+        addedTravelUserPair.personalHotelSpend = 0;
+        addedTravelUserPair.personalEtcSpend = 0;
+        await this.travelUserPairService.saveTravelUserPair(addedTravelUserPair);
+        return this.findAllTravel(userId);
     }
-    async getSpend(userId, travelId) {
+    async deleteUserFromTravel(userId, travelId, deletedUserId) {
         (0, auth_1.validateToken)();
-        const testResultData = {
-            travelSpend: [`testResultData with travelId : ${travelId}`],
-            userSpend: [`userSpendTestValue with userId : ${userId}`]
-        };
-        return Object.assign({
-            data: testResultData,
-            statusCode: 200,
-            statusMsg: `데이터 조회가 성공적으로 완료되었습니다.`,
-        });
+        const deletedTravelUserPair = await this.travelUserPairService.findWithUserTravelCondition(deletedUserId, travelId);
+        await this.travelUserPairService.deleteTravelUserPair(deletedTravelUserPair.travelUserPairId);
+        return this.findAllTravel(userId);
     }
     async getTravelData(travelId) {
         (0, auth_1.validateToken)();
         const resultTravelData = await this.travelService.findOne(travelId);
+        const joinedUserList = await this.travelUserPairService.findWithTravelCondition(travelId);
         return Object.assign({
-            data: resultTravelData,
+            data: {
+                resultTravelData,
+                joinedUserList
+            },
             statusCode: 200,
             statusMsg: `데이터 조회가 성공적으로 완료되었습니다.`,
         });
@@ -171,21 +173,23 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], TravelController.prototype, "giveAllTravelWhenLogin", null);
 __decorate([
-    (0, common_1.Get)(':travelId/stats'),
-    __param(0, (0, common_1.Param)('travelId')),
-    __param(1, (0, common_1.Param)('userId')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, String]),
-    __metadata("design:returntype", Promise)
-], TravelController.prototype, "getStats", null);
-__decorate([
-    (0, common_1.Get)(':travelId/spends'),
+    (0, common_1.Post)(':travelId/:addedUserId'),
     __param(0, (0, common_1.Param)('userId')),
     __param(1, (0, common_1.Param)('travelId')),
+    __param(2, (0, common_1.Param)('addedUserId')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:paramtypes", [String, Number, String]),
     __metadata("design:returntype", Promise)
-], TravelController.prototype, "getSpend", null);
+], TravelController.prototype, "addUserToTravel", null);
+__decorate([
+    (0, common_1.Delete)(':travelId/:deletedUserId'),
+    __param(0, (0, common_1.Param)('userId')),
+    __param(1, (0, common_1.Param)('travelId')),
+    __param(2, (0, common_1.Param)('deletedUserId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Number, String]),
+    __metadata("design:returntype", Promise)
+], TravelController.prototype, "deleteUserFromTravel", null);
 __decorate([
     (0, common_1.Get)(':travelId'),
     __param(0, (0, common_1.Param)('travelId')),

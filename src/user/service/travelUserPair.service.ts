@@ -71,6 +71,92 @@ export class TravelUserPairService {
     )
   }
 
+
+  async findWithTravelCondition(travelId: number): Promise<TravelUserPair[]>{
+    // const result = await this.travelUserPairRepository.find(
+    //   {
+    //     loadRelationIds: {
+    //       relations: [
+    //         'travel',
+    //         'user'
+    //       ],
+    //       disableMixedMap: true
+    //     },
+    //     // select: [
+    //     //   'travelUserPairId',
+    //     //   'travel',
+    //     //   'user'
+    //     // ],
+    //     where: {
+    //       user: {userId: userId}
+    //     }
+    //   }
+    // );
+    // console.log(result);
+    // console.log("RESULT [0] is... ");
+    // console.log(result[0]);
+    // console.log(result[0].user);
+    // console.log(`primary result : ${result}`);
+    return await this.travelUserPairRepository.find(
+      {
+        loadRelationIds: {
+          relations: [
+            'travel',
+            'user'
+          ],
+          disableMixedMap: true
+        },
+        where: {
+          travel: {travelId: travelId}
+        }
+      }
+    )
+  }
+
+
+  
+  async findWithUserTravelCondition(userId: string, travelId:number): Promise<TravelUserPair>{
+    // const result = await this.travelUserPairRepository.find(
+    //   {
+    //     loadRelationIds: {
+    //       relations: [
+    //         'travel',
+    //         'user'
+    //       ],
+    //       disableMixedMap: true
+    //     },
+    //     // select: [
+    //     //   'travelUserPairId',
+    //     //   'travel',
+    //     //   'user'
+    //     // ],
+    //     where: {
+    //       user: {userId: userId}
+    //     }
+    //   }
+    // );
+    // console.log(result);
+    // console.log("RESULT [0] is... ");
+    // console.log(result[0]);
+    // console.log(result[0].user);
+    // console.log(`primary result : ${result}`);
+    return await this.travelUserPairRepository.findOne(
+      {
+        loadRelationIds: {
+          relations: [
+            'travel',
+            'user'
+          ],
+          disableMixedMap: true
+        },
+        where: {
+          user: {userId: userId},
+          travel: {travelId: travelId}
+        }
+      }
+    )
+  }
+
   // async findWithTravelCondition(findTravel: Travel): Promise<TravelUserPair[]>{
   //   return await this.travelUserPairRepository.find({
   //     where: {

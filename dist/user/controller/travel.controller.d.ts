@@ -13,8 +13,8 @@ export declare class TravelController {
     constructor(travelService: TravelService, travelUserPairService: TravelUserPairService, userService: UserService, travelSpendService: TravelSpendService, userSpendService: UserSpendService);
     findAllTravel(userId: string): Promise<Travel[]>;
     giveAllTravelWhenLogin(userId: string): Promise<Travel[]>;
-    getStats(travelId: number, userId: string): Promise<string>;
-    getSpend(userId: string, travelId: string): Promise<Object>;
+    addUserToTravel(userId: string, travelId: number, addedUserId: string): Promise<Travel[]>;
+    deleteUserFromTravel(userId: string, travelId: number, deletedUserId: string): Promise<Travel[]>;
     getTravelData(travelId: number): Promise<string>;
     postTravelData(travelData: any, userId: string): Promise<Object>;
     putTravelData(travelId: number, userId: string, travelData: any): Promise<string>;

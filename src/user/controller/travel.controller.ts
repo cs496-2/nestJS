@@ -92,46 +92,51 @@ export class TravelController {
 
     return this.findAllTravel(userId);
   }
-  
-  /*Get Stats for Travel*/
-  @Get(':travelId/stats')
-  async getStats(@Param('travelId') travelId: number, @Param('userId') userId: string): Promise<string> {
-    validateToken();
-    const travelSpendList : TravelSpend[] = await this.travelSpendService.findWithTravelCondition(travelId);
-    const userSpendList: UserSpend[] = await this.userSpendService.findWithUserTravelCondition(travelId, userId);
-    
-    // console.log(userList);
-    return Object.assign({
-      data: {
-        travelSpendList,
-        userSpendList
-      },
-      statusCode: 200,
-      statusMsg: `데이터 조회가 성공적으로 완료되었습니다.`,
-    });
-  }
 
-  @Get(':travelId/spends')
-  async getSpend(@Param('userId') userId: string, @Param('travelId') travelId: string): Promise<Object>{
+  
+  @Post(':travelId/:addedUserId')
+  async addUserToTravel(@Param('userId') userId: string, @Param('travelId') travelId: number, @Param('addedUserId') addedUserId: string): Promise<Travel[]> {
     validateToken();
-    const testResultData = {
-      travelSpend: [`testResultData with travelId : ${travelId}`],
-      userSpend: [`userSpendTestValue with userId : ${userId}`]
-    };
-    return Object.assign({
-      data: testResultData,
-      statusCode: 200,
-      statusMsg: `데이터 조회가 성공적으로 완료되었습니다.`,
-    });
+    const addedUser : User = await this.userService.findOne(addedUserId);
+    const addedTravel : Travel = await this.travelService.findOne(travelId);
+    const addedTravelUserPair : TravelUserPair = new TravelUserPair();
+    addedTravelUserPair.travel = addedTravel;
+    addedTravelUserPair.user = addedUser;
+    addedTravelUserPair.personalTotalSpend = 0;
+    addedTravelUserPair.personalMealSpend = 0;
+    addedTravelUserPair.personalShopSpend = 0;
+    addedTravelUserPair.personalTourSpend = 0;
+    addedTravelUserPair.personalTransportSpend = 0;
+    addedTravelUserPair.personalHotelSpend = 0;
+    addedTravelUserPair.personalEtcSpend = 0;
+    await this.travelUserPairService.saveTravelUserPair(addedTravelUserPair);
+
+    return this.findAllTravel(userId);
   }
   
+  @Delete(':travelId/:deletedUserId')
+  async deleteUserFromTravel(@Param('userId') userId: string, @Param('travelId') travelId: number, @Param('deletedUserId') deletedUserId: string): Promise<Travel[]> {
+    validateToken();
+    const deletedTravelUserPair : TravelUserPair = await this.travelUserPairService.findWithUserTravelCondition(deletedUserId, travelId);
+    await this.travelUserPairService.deleteTravelUserPair(deletedTravelUserPair.travelUserPairId);
+
+    return this.findAllTravel(userId);
+  }
+  
+
+
   /* Travel Data CRUD Part*/
   @Get(':travelId')
   async getTravelData(@Param('travelId') travelId: number): Promise<string> {
     validateToken();
     const resultTravelData = await this.travelService.findOne(travelId);
+    const joinedUserList = await this.travelUserPairService.findWithTravelCondition(travelId);
+    
     return Object.assign({
-      data: resultTravelData,
+      data: {
+        resultTravelData,
+        joinedUserList
+      },
       statusCode: 200,
       statusMsg: `데이터 조회가 성공적으로 완료되었습니다.`,
     });

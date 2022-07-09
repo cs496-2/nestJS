@@ -26,8 +26,8 @@ export class TravelSpendService {
   /**
    * User 리스트 조회
    */
-  async findAll(): Promise<Travel[]> {
-    return await this.travelRepository.find();
+  async findAll(): Promise<TravelSpend[]> {
+    return await this.travelSpendRepository.find();
   }
 
 
@@ -45,23 +45,23 @@ export class TravelSpendService {
    * 특정 유저 조회
    * @param id
    */
-  async findOne(id: number): Promise<Travel> {
-    return await this.travelRepository.findOne({ where:{
-      travelId: id
+  async findOne(id: number): Promise<TravelSpend> {
+    return await this.travelSpendRepository.findOne({ where:{
+      travelSpendId: id
     } });
   }
   /**
    * 유저 저장
    * @param travel
    */
-  async saveTravel(travel: Travel): Promise<void> {
-    await this.travelRepository.save(travel);
+  async saveTravelSpend(travelSpend: TravelSpend): Promise<void> {
+    await this.travelSpendRepository.save(travelSpend);
   }
   /**
    * 유저 삭제
    */
-  async deleteTravel(id: number): Promise<void> {
-    await this.travelRepository.delete({ travelId: id });
+  async deleteTravelSpend(id: number): Promise<void> {
+    await this.travelSpendRepository.delete({ travelSpendId: id });
   }
 
 

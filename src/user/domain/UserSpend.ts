@@ -21,13 +21,13 @@ export class UserSpend extends BaseEntity{
 
   @Column()
   spendName: string;
-  @Column()
+  @Column({nullable:true})
   createdDate: Date;
-  @Column()
+  @Column({nullable:true})
   spendAmount: number;
-  @Column()
+  @Column({nullable:true})
   useWon : boolean;
-  @Column()
+  @Column({nullable:true})
   spendCategory : number;
 
   // Save code below to remember how to set relation between tables

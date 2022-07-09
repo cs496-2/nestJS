@@ -13,11 +13,12 @@ import { TravelService } from './service/travel.service';
 import { TravelUserPairService } from './service/travelUserPair.service';
 import { TravelSpendService } from './service/travelSpend.service';
 import { UserSpendService } from './service/userSpend.service';
+import { SpendController } from './controller/spend.controller';
 // import { SpendController } from './controller/spend.controller';
 
 @Module({
   imports: [TypeOrmModule.forFeature([User, Photo, Travel, TravelSpend, UserSpend, TravelUserPair])],
-  controllers: [UserController, TravelController],
+  controllers: [UserController, TravelController, SpendController],
   providers: [UserService, TravelService, TravelUserPairService, TravelSpendService, UserSpendService],
 })
 export class UserModule {}

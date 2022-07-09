@@ -38,19 +38,19 @@ __decorate([
     __metadata("design:type", String)
 ], UserSpend.prototype, "spendName", void 0);
 __decorate([
-    (0, index_1.Column)(),
+    (0, index_1.Column)({ nullable: true }),
     __metadata("design:type", Date)
 ], UserSpend.prototype, "createdDate", void 0);
 __decorate([
-    (0, index_1.Column)(),
+    (0, index_1.Column)({ nullable: true }),
     __metadata("design:type", Number)
 ], UserSpend.prototype, "spendAmount", void 0);
 __decorate([
-    (0, index_1.Column)(),
+    (0, index_1.Column)({ nullable: true }),
     __metadata("design:type", Boolean)
 ], UserSpend.prototype, "useWon", void 0);
 __decorate([
-    (0, index_1.Column)(),
+    (0, index_1.Column)({ nullable: true }),
     __metadata("design:type", Number)
 ], UserSpend.prototype, "spendCategory", void 0);
 UserSpend = __decorate([

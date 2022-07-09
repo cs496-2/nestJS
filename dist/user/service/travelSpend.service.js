@@ -35,7 +35,7 @@ let TravelSpendService = class TravelSpendService {
         this.userSpendRepository = userSpendRepository;
     }
     async findAll() {
-        return await this.travelRepository.find();
+        return await this.travelSpendRepository.find();
     }
     async findWithTravelCondition(travelId) {
         return await this.travelSpendRepository.find({
@@ -45,15 +45,15 @@ let TravelSpendService = class TravelSpendService {
         });
     }
     async findOne(id) {
-        return await this.travelRepository.findOne({ where: {
-                travelId: id
+        return await this.travelSpendRepository.findOne({ where: {
+                travelSpendId: id
             } });
     }
-    async saveTravel(travel) {
-        await this.travelRepository.save(travel);
+    async saveTravelSpend(travelSpend) {
+        await this.travelSpendRepository.save(travelSpend);
     }
-    async deleteTravel(id) {
-        await this.travelRepository.delete({ travelId: id });
+    async deleteTravelSpend(id) {
+        await this.travelSpendRepository.delete({ travelSpendId: id });
     }
 };
 TravelSpendService = __decorate([
