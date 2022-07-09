@@ -12,16 +12,16 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TravelService = void 0;
+exports.TravelSpendService = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
-const User_1 = require(".././domain/User");
+const User_1 = require("../domain/User");
 const index_1 = require("typeorm/index");
-const Travel_1 = require(".././domain/Travel");
-const TravelUserPair_1 = require(".././domain/TravelUserPair");
-const TravelSpend_1 = require(".././domain/TravelSpend");
-const UserSpend_1 = require(".././domain/UserSpend");
-let TravelService = class TravelService {
+const Travel_1 = require("../domain/Travel");
+const TravelUserPair_1 = require("../domain/TravelUserPair");
+const TravelSpend_1 = require("../domain/TravelSpend");
+const UserSpend_1 = require("../domain/UserSpend");
+let TravelSpendService = class TravelSpendService {
     constructor(userRepository, travelRepository, travelUserPairRepository, travelSpendRepository, userSpendRepository) {
         this.userRepository = userRepository;
         this.travelRepository = travelRepository;
@@ -37,6 +37,13 @@ let TravelService = class TravelService {
     async findAll() {
         return await this.travelRepository.find();
     }
+    async findWithTravelCondition(travelId) {
+        return await this.travelSpendRepository.find({
+            where: {
+                travel: { travelId: travelId }
+            }
+        });
+    }
     async findOne(id) {
         return await this.travelRepository.findOne({ where: {
                 travelId: id
@@ -49,7 +56,7 @@ let TravelService = class TravelService {
         await this.travelRepository.delete({ travelId: id });
     }
 };
-TravelService = __decorate([
+TravelSpendService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(User_1.User)),
     __param(1, (0, typeorm_1.InjectRepository)(Travel_1.Travel)),
@@ -61,6 +68,6 @@ TravelService = __decorate([
         index_1.Repository,
         index_1.Repository,
         index_1.Repository])
-], TravelService);
-exports.TravelService = TravelService;
-//# sourceMappingURL=travel.service%20copy.js.map
+], TravelSpendService);
+exports.TravelSpendService = TravelSpendService;
+//# sourceMappingURL=travelSpend.service.js.map

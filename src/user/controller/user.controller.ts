@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Res } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Res } from '@nestjs/common';
 import { UserDto } from '../dto/user.dto';
 import { UserService } from '../service/user.service';
 // import { TestService } from '../test/test.service';
@@ -29,6 +29,20 @@ export class UserController {
       statusCode: 200,
       statusMsg: `데이터 조회가 성공적으로 완료되었습니다.`,
     });
+  }
+  @Put(':userId/logout')
+  async logout(@Param('userId') userId: string): Promise<string>{
+    const user = await this.userService.findOne(userId);
+    user.isActive = false;
+    await this.userService.saveUser(user);
+
+    return Object.assign({
+      data: {
+        userId,
+      },
+      statusCode: 204,
+      statusMsg: '데이터 갱신이 성공적으로 완료되었습니다.',
+    })
   }
   @Get(':userId')
   async findOne(@Param('userId') id: string): Promise<User> {

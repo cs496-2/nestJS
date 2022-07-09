@@ -12,6 +12,7 @@ export declare class TravelUserPairService {
     private userSpendRepository;
     constructor(userRepository: Repository<User>, travelRepository: Repository<Travel>, travelUserPairRepository: Repository<TravelUserPair>, travelSpendRepository: Repository<TravelSpend>, userSpendRepository: Repository<UserSpend>);
     findAll(): Promise<TravelUserPair[]>;
+    findWithUserCondition(userId: string): Promise<TravelUserPair[]>;
     findOne(id: number): Promise<TravelUserPair>;
     saveTravelUserPair(travelUserPair: TravelUserPair): Promise<void>;
     deleteTravelUserPair(id: number): Promise<void>;

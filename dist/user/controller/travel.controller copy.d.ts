@@ -1,4 +1,5 @@
 import { UserService } from '../service/user.service';
+import { User } from '../domain/User';
 import { TravelService } from '../service/travel.service';
 import { Travel } from '../domain/Travel';
 import { TravelUserPairService } from '../service/travelUserPair.service';
@@ -19,4 +20,7 @@ export declare class TravelController {
     postTravelData(travelData: any, userId: string): Promise<Object>;
     putTravelData(travelId: number, userId: string, travelData: any): Promise<string>;
     deleteTravelData(travelId: number, userId: string): Promise<string>;
+    findOne(id: string): Promise<User>;
+    saveUser(user: User): Promise<string>;
+    deleteUser(id: string): Promise<string>;
 }

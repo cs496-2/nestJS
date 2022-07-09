@@ -6,6 +6,7 @@ export declare class UserController {
     private travelService;
     constructor(userService: UserService, travelService: TravelService);
     findAll(): Promise<User[]>;
+    logout(userId: string): Promise<string>;
     findOne(id: string): Promise<User>;
     saveUser(user: User): Promise<string>;
     deleteUser(id: string): Promise<string>;

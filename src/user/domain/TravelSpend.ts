@@ -5,7 +5,9 @@ import {Travel} from './Travel'
 export class TravelSpend extends BaseEntity{
   @PrimaryGeneratedColumn()
   travelSpendId: number;
-  @ManyToOne(type => Travel, travel =>travel.travelSpends)
+  @ManyToOne(type => Travel, travel =>travel.travelSpends,{
+    onDelete: 'CASCADE'
+  })
   @JoinColumn({ name: 'ref_travelId', referencedColumnName: 'travelId' })
   travel: Travel;
 

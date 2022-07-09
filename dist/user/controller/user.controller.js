@@ -33,6 +33,18 @@ let UserController = class UserController {
             statusMsg: `데이터 조회가 성공적으로 완료되었습니다.`,
         });
     }
+    async logout(userId) {
+        const user = await this.userService.findOne(userId);
+        user.isActive = false;
+        await this.userService.saveUser(user);
+        return Object.assign({
+            data: {
+                userId,
+            },
+            statusCode: 204,
+            statusMsg: '데이터 갱신이 성공적으로 완료되었습니다.',
+        });
+    }
     async findOne(id) {
         const foundUser = await this.userService.findOne(id);
         return Object.assign({
@@ -64,6 +76,13 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "findAll", null);
+__decorate([
+    (0, common_1.Put)(':userId/logout'),
+    __param(0, (0, common_1.Param)('userId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "logout", null);
 __decorate([
     (0, common_1.Get)(':userId'),
     __param(0, (0, common_1.Param)('userId')),

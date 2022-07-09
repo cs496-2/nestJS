@@ -20,12 +20,16 @@ __decorate([
     __metadata("design:type", Number)
 ], UserSpend.prototype, "userSpendId", void 0);
 __decorate([
-    (0, index_1.ManyToOne)(type => Travel_1.Travel, travel => travel.userSpends),
+    (0, index_1.ManyToOne)(type => Travel_1.Travel, travel => travel.userSpends, {
+        onDelete: 'CASCADE'
+    }),
     (0, index_1.JoinColumn)({ name: 'ref_travelId', referencedColumnName: 'travelId' }),
     __metadata("design:type", Travel_1.Travel)
 ], UserSpend.prototype, "travel", void 0);
 __decorate([
-    (0, index_1.ManyToOne)(type => User_1.User, user => user.userSpends),
+    (0, index_1.ManyToOne)(type => User_1.User, user => user.userSpends, {
+        onDelete: 'CASCADE'
+    }),
     (0, index_1.JoinColumn)({ name: 'ref_userId', referencedColumnName: 'userId' }),
     __metadata("design:type", User_1.User)
 ], UserSpend.prototype, "user", void 0);

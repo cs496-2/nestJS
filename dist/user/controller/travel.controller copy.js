@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.TravelController = void 0;
 const common_1 = require("@nestjs/common");
 const user_service_1 = require("../service/user.service");
+const User_1 = require("../domain/User");
 const travel_service_1 = require("../service/travel.service");
 const Travel_1 = require("../domain/Travel");
 const travelUserPair_service_1 = require("../service/travelUserPair.service");
@@ -155,6 +156,33 @@ let TravelController = class TravelController {
             statusMsg: `데이터 삭제가 성공적으로 완료되었습니다.`,
         });
     }
+    async findOne(id) {
+        (0, auth_1.validateToken)();
+        const foundUser = await this.userService.findOne(id);
+        return Object.assign({
+            data: foundUser,
+            statusCode: 200,
+            statusMsg: `데이터 조회가 성공적으로 완료되었습니다.`,
+        });
+    }
+    async saveUser(user) {
+        (0, auth_1.validateToken)();
+        await this.userService.saveUser(user);
+        return Object.assign({
+            data: Object.assign({}, user),
+            statusCode: 201,
+            statusMsg: `saved successfully`,
+        });
+    }
+    async deleteUser(id) {
+        (0, auth_1.validateToken)();
+        await this.userService.deleteUser(id);
+        return Object.assign({
+            data: { userId: id },
+            statusCode: 201,
+            statusMsg: `deleted successfully`,
+        });
+    }
 };
 __decorate([
     (0, common_1.Get)('travels'),
@@ -218,6 +246,27 @@ __decorate([
     __metadata("design:paramtypes", [Number, String]),
     __metadata("design:returntype", Promise)
 ], TravelController.prototype, "deleteTravelData", null);
+__decorate([
+    (0, common_1.Get)(':userId'),
+    __param(0, (0, common_1.Param)('userId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], TravelController.prototype, "findOne", null);
+__decorate([
+    (0, common_1.Post)(),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [User_1.User]),
+    __metadata("design:returntype", Promise)
+], TravelController.prototype, "saveUser", null);
+__decorate([
+    (0, common_1.Delete)(':userId'),
+    __param(0, (0, common_1.Param)('userId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], TravelController.prototype, "deleteUser", null);
 TravelController = __decorate([
     (0, common_1.Controller)('user/:userId'),
     __metadata("design:paramtypes", [travel_service_1.TravelService,
@@ -227,4 +276,4 @@ TravelController = __decorate([
         userSpend_service_1.UserSpendService])
 ], TravelController);
 exports.TravelController = TravelController;
-//# sourceMappingURL=travel.controller.js.map
+//# sourceMappingURL=travel.controller%20copy.js.map

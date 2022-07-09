@@ -7,11 +7,11 @@ import { TravelUserPair } from '../domain/TravelUserPair';
 import { TravelSpend } from '../domain/TravelSpend';
 import { UserSpend } from '../domain/UserSpend';
 @Injectable()
-export class TravelUserPairService {
+export class TravelSpendService {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
     @InjectRepository(Travel) private travelRepository: Repository<Travel>,
-    @InjectRepository(TravelUserPair) private travelUserPairRepository: Repository<TravelUserPair>,
+    @InjectRepository(TravelUserPair) private travelUserPairRepository: Repository<User>,
     @InjectRepository(TravelSpend) private travelSpendRepository: Repository<TravelSpend>,
     @InjectRepository(UserSpend) private userSpendRepository: Repository<UserSpend>,
     // private connection: Connection
@@ -26,79 +26,42 @@ export class TravelUserPairService {
   /**
    * User 리스트 조회
    */
-  findAll(): Promise<TravelUserPair[]> {
-    return this.travelUserPairRepository.find();
+  async findAll(): Promise<Travel[]> {
+    return await this.travelRepository.find();
   }
 
-  async findWithUserCondition(userId: string): Promise<TravelUserPair[]>{
-    // const result = await this.travelUserPairRepository.find(
-    //   {
-    //     loadRelationIds: {
-    //       relations: [
-    //         'travel',
-    //         'user'
-    //       ],
-    //       disableMixedMap: true
-    //     },
-    //     // select: [
-    //     //   'travelUserPairId',
-    //     //   'travel',
-    //     //   'user'
-    //     // ],
-    //     where: {
-    //       user: {userId: userId}
-    //     }
-    //   }
-    // );
-    // console.log(result);
-    // console.log("RESULT [0] is... ");
-    // console.log(result[0]);
-    // console.log(result[0].user);
-    // console.log(`primary result : ${result}`);
-    return await this.travelUserPairRepository.find(
+
+  async findWithTravelCondition(travelId: number): Promise<TravelSpend[]>{
+    return await this.travelSpendRepository.find(
       {
-        loadRelationIds: {
-          relations: [
-            'travel',
-            'user'
-          ],
-          disableMixedMap: true
-        },
         where: {
-          user: {userId: userId}
+          travel: {travelId: travelId}
         }
       }
     )
   }
 
-  // async findWithTravelCondition(findTravel: Travel): Promise<TravelUserPair[]>{
-  //   return await this.travelUserPairRepository.find({
-  //     where: {
-  //       travel: findTravel
-  //     }
-  //   })
-  // }
   /**
    * 특정 유저 조회
    * @param id
    */
-  findOne(id: number): Promise<TravelUserPair> {
-    return this.travelUserPairRepository.findOne({ where:{
-      travelUserPairId: id
+  async findOne(id: number): Promise<Travel> {
+    return await this.travelRepository.findOne({ where:{
+      travelId: id
     } });
   }
   /**
    * 유저 저장
    * @param travel
    */
-  async saveTravelUserPair(travelUserPair : TravelUserPair): Promise<void> {
-    await this.travelUserPairRepository.save(travelUserPair);
+  async saveTravel(travel: Travel): Promise<void> {
+    await this.travelRepository.save(travel);
   }
   /**
    * 유저 삭제
    */
-  async deleteTravelUserPair(id: number): Promise<void> {
-    await this.travelUserPairRepository.delete({ travelUserPairId: id });
+  async deleteTravel(id: number): Promise<void> {
+    await this.travelRepository.delete({ travelId: id });
   }
 
 

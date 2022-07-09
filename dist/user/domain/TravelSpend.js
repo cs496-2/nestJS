@@ -19,7 +19,9 @@ __decorate([
     __metadata("design:type", Number)
 ], TravelSpend.prototype, "travelSpendId", void 0);
 __decorate([
-    (0, index_1.ManyToOne)(type => Travel_1.Travel, travel => travel.travelSpends),
+    (0, index_1.ManyToOne)(type => Travel_1.Travel, travel => travel.travelSpends, {
+        onDelete: 'CASCADE'
+    }),
     (0, index_1.JoinColumn)({ name: 'ref_travelId', referencedColumnName: 'travelId' }),
     __metadata("design:type", Travel_1.Travel)
 ], TravelSpend.prototype, "travel", void 0);

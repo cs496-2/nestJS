@@ -7,11 +7,15 @@ export class UserSpend extends BaseEntity{
   @PrimaryGeneratedColumn()
   userSpendId: number;
 
-  @ManyToOne(type => Travel, travel =>travel.userSpends)
+  @ManyToOne(type => Travel, travel =>travel.userSpends,{
+    onDelete: 'CASCADE'
+  })
   @JoinColumn({ name: 'ref_travelId', referencedColumnName: 'travelId' })
   travel: Travel;
 
-  @ManyToOne(type => User, user =>user.userSpends)
+  @ManyToOne(type => User, user =>user.userSpends,{
+    onDelete: 'CASCADE'
+  })
   @JoinColumn({ name: 'ref_userId', referencedColumnName: 'userId' })
   user: User;
 

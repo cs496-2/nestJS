@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Res } from '@nestjs/common';
+import { Body, ConsoleLogger, Controller, Delete, Get, Param, Post, Put, Res } from '@nestjs/common';
 import { UserDto } from '../dto/user.dto';
 import { UserService } from '../service/user.service';
 // import { TestService } from '../test/test.service';
@@ -8,6 +8,11 @@ import { Travel } from '../domain/Travel';
 import { TravelUserPairService } from '../service/travelUserPair.service';
 import { TravelUserPair } from '../domain/TravelUserPair';
 import { RemoveOptions, SaveOptions } from 'typeorm';
+import { validateToken } from 'src/auth';
+import { TravelSpend } from '../domain/TravelSpend';
+import { TravelSpendService } from '../service/travelSpend.service';
+import { UserSpendService } from '../service/userSpend.service';
+import { UserSpend } from '../domain/UserSpend';
 
 @Controller('user/:userId')
 export class TravelController {
@@ -15,15 +20,115 @@ export class TravelController {
     private travelService: TravelService,
     private travelUserPairService: TravelUserPairService,
     private userService: UserService,
+    private travelSpendService: TravelSpendService,
+    private userSpendService: UserSpendService
   ) {
     this.travelService = travelService;
     this.travelUserPairService =travelUserPairService;
     this.userService = userService;
+    this.travelSpendService = travelSpendService;
+    this.userSpendService = userSpendService;
   }
 
-  //methods//
+
+  /*Get All Travel List */
+  @Get('travels')
+  async findAllTravel(@Param('userId') userId: string): Promise<Travel[]> {
+    validateToken();
+
+    // console.log("for debug");
+    // const testUser = await this.userService.findOne(userId);
+    // console.log(testUser);
+    // console.log("now printing user.traveluserpair");
+    // console.log(testUser.travelUserPairs[0]);
+    // console.log("debug end");
+
+
+    // console.log("find All Travels...");
+    const travelList : Travel[] = [];
+    // const travelList = await this.travelService.findAll();
+    const travelUserPairs = await this.travelUserPairService.findWithUserCondition(userId);
+    // const travelList = await this.travelService.findOne(travelId);
+    // console.log(`travel User Pairs are ... ${travelUserPairs}`);
+    // console.log(`travelUserPairs[0] : ${travelUserPairs[0]}`);
+    for (let i = 0 ; i < travelUserPairs.length;i++){
+      const element = travelUserPairs[i];
+      // console.log(`element : ${element}`);
+      // console.log(element);
+      // console.log(`element.user: ${element.user}`);
+      // console.log(element.user);
+      // console.log(`element.user.userId : ${element.user.userId}`);
+      // console.log(`element.travel : ${element.travel}`);
+      // console.log(`element.travel.travelId : ${element.travel.travelId}`);
+      const addTravel :Travel = await this.travelService.findOne(element.travel.travelId);
+      // console.log("THE FOUND TRAVEL IS BEING ADDED...");
+      // console.log(addTravel);
+      // console.log("TRAVEL LIST BEFORE PUSH");
+      // console.log(travelList);
+      travelList.push(addTravel);
+      // console.log("TRAVEL LIST AFTER PUSH");
+      // console.log(travelList);
+    }
+    // console.log("Hello World...");
+    // console.log(travelList);
+    // console.log(`all travels are.... ${travelList}`);
+    const result = Object.assign({
+      data: travelList,
+      statusCode: 200,
+      statusMsg: `데이터 조회가 성공적으로 완료되었습니다.`,
+    });
+    // console.log(result);
+    return result; 
+  }
+
+  
+  @Put('travels')
+  async giveAllTravelWhenLogin(@Param('userId') userId: string): Promise<Travel[]> {
+    validateToken();
+
+    const user = await this.userService.findOne(userId);
+    user.isActive = true;
+    await this.userService.saveUser(user);
+
+    return this.findAllTravel(userId);
+  }
+  
+  /*Get Stats for Travel*/
+  @Get(':travelId/stats')
+  async getStats(@Param('travelId') travelId: number, @Param('userId') userId: string): Promise<string> {
+    validateToken();
+    const travelSpendList : TravelSpend[] = await this.travelSpendService.findWithTravelCondition(travelId);
+    const userSpendList: UserSpend[] = await this.userSpendService.findWithUserTravelCondition(travelId, userId);
+    
+    // console.log(userList);
+    return Object.assign({
+      data: {
+        travelSpendList,
+        userSpendList
+      },
+      statusCode: 200,
+      statusMsg: `데이터 조회가 성공적으로 완료되었습니다.`,
+    });
+  }
+
+  @Get(':travelId/spends')
+  async getSpend(@Param('userId') userId: string, @Param('travelId') travelId: string): Promise<Object>{
+    validateToken();
+    const testResultData = {
+      travelSpend: [`testResultData with travelId : ${travelId}`],
+      userSpend: [`userSpendTestValue with userId : ${userId}`]
+    };
+    return Object.assign({
+      data: testResultData,
+      statusCode: 200,
+      statusMsg: `데이터 조회가 성공적으로 완료되었습니다.`,
+    });
+  }
+  
+  /* Travel Data CRUD Part*/
   @Get(':travelId')
   async getTravelData(@Param('travelId') travelId: number): Promise<string> {
+    validateToken();
     const resultTravelData = await this.travelService.findOne(travelId);
     return Object.assign({
       data: resultTravelData,
@@ -32,9 +137,9 @@ export class TravelController {
     });
   }
 
-  //travelDataPostPart
   @Post('travel')
   async postTravelData(@Body() travelData , @Param('userId') userId: string): Promise<Object> {
+    validateToken();
     /*create new Travel*/
     const newTravel : Travel = new Travel();
     newTravel.travelName = travelData.travelName;
@@ -84,6 +189,7 @@ export class TravelController {
 
   @Put(':travelId')
   async putTravelData(@Param('travelId') travelId: number, @Param('userId') userId: string, @Body() travelData): Promise<string> {
+    validateToken();
     const updateTravel = await this.travelService.findOne(travelId);
     updateTravel.travelName = travelData.travelName;
     updateTravel.travelCountry = travelData.travelCountry;
@@ -98,11 +204,12 @@ export class TravelController {
     return Object.assign({
       data: updateTravel,
       statusCode: 201,
-      statusMsg: `데이터 수정가 성공적으로 완료되었습니다.`,
+      statusMsg: `데이터 갱신이 성공적으로 완료되었습니다.`,
     });
   }
   @Delete(':travelId')
   async deleteTravelData(@Param('travelId') travelId: number, @Param('userId') userId: string): Promise<string> {
+    validateToken();
     // const userList = await this.userService.findAll();
     // const testvalue : string = travelId + userId;
     
@@ -118,147 +225,6 @@ export class TravelController {
       statusMsg: `데이터 삭제가 성공적으로 완료되었습니다.`,
     });
   }
-
-
-
-
-  @Get(':travelId/stats')
-  async getStats(@Param('travelId') travelId: string, @Param('userId') userId: string): Promise<string> {
-    // const userList = await this.userService.findAll();
-    const testvalue : string = travelId + userId;
-    
-    // console.log(userList);
-    return Object.assign({
-      data: testvalue,
-      statusCode: 200,
-      statusMsg: `데이터 조회가 성공적으로 완료되었습니다.`,
-    });
-  }
-
-  @Get(':travelId/spends')
-  async getSpend(@Param('userId') userId: string, @Param('travelId') travelId: string): Promise<Object>{
-    const testResultData = {
-      travelSpend: [`testResultData with travelId : ${travelId}`],
-      userSpend: [`userSpendTestValue with userId : ${userId}`]
-    };
-    return Object.assign({
-      data: testResultData,
-      statusCode: 200,
-      statusMsg: `데이터 조회가 성공적으로 완료되었습니다.`,
-    });
-  }
-
-  @Get('list')
-  async findAll(): Promise<User[]> {
-    const userList = await this.userService.findAll();
-    console.log(userList);
-    return Object.assign({
-      data: userList,
-      statusCode: 200,
-      statusMsg: `데이터 조회가 성공적으로 완료되었습니다.`,
-    });
-  }
-  @Get(':userId')
-  async findOne(@Param('userId') id: string): Promise<User> {
-    const foundUser = await this.userService.findOne(id);
-    return Object.assign({
-      data: foundUser,
-      statusCode: 200,
-      statusMsg: `데이터 조회가 성공적으로 완료되었습니다.`,
-    });
-  }
-  @Post()
-  async saveUser(@Body() user: User): Promise<string> {
-    // await this.userService.saveUser({ /* id: this.generateUserId(), */ ...user});
-    await this.userService.saveUser(user);
-    return Object.assign({
-      data: { /* id: this.userKey,  */
-        ...user },
-      statusCode: 201,
-      statusMsg: `saved successfully`,
-    });
-  }
-  @Delete(':userId')
-  async deleteUser(@Param('userId') id: string): Promise<string> {
-    await this.userService.deleteUser(id);
-    return Object.assign({
-      data: { userId: id },
-      statusCode: 201,
-      statusMsg: `deleted successfully`,
-    });
-  }
+  /* Travel Data CRUD Part End */
 }
 
-
-// import { Body, Controller, Get, Param, Post, Res } from '@nestjs/common';
-// import { UserDto } from './dto/user.dto';
-// import { UserService } from './user.service';
-
-// @Controller('user')
-// export class UserController {
-//   // @Get(':userId')
-//   // findOne(@Param('userId') id: string): string {
-//   //   return Object.assign({ id, userName: '이정주' });
-//   // }
-
-//   //Dependency Injection
-//   constructor(private userService: UserService) {
-//     this.userService = userService;
-//   }
-
-
-
-//   // @Get('list')
-//   // findAll(): Promise<any[]> {
-//   //   return new Promise((resolve) =>
-//   //     setTimeout(
-//   //       () => resolve([{ userName: '이정주' }, { userName: '김명일' }]),
-//   //       100,
-//   //     ),
-//   //   );
-//   // }
-
-//   // @Get(':userId')
-//   // findOne(@Param('userId') id: string, @Res() res): string {
-//   //   // return res.status(200).send({ id, userName: '이정주', accountNum: 123 });
-//   //   return res.status(200).send({ id, userName: '이정주', accountNum: 123 });
-//   // }
-
-//   // @Post()
-//   // saveUser(@Body() payload): string {
-//   //   return Object.assign({
-//   //     statusCode: 201,
-//   //     data: payload,
-//   //     statusMsg: 'created successfully',
-//   //   });
-//   // }
-
-//   // @Post()
-//   // saveUser(@Body() userDto: UserDto): string {
-//   //   return Object.assign({
-//   //     data: { ...userDto },
-//   //     statusCode: 201,
-//   //     statusMsg: `saved successfully`,
-//   //   });
-//   // }
-
-//   @Get('list')
-//   findAll(): Promise<UserDto[]> {
-//     return this.userService.findAll();
-//   }
-//   @Get(':userId')
-//   findOne(@Param('userId') id: string): any | object {
-//     return this.userService.findOne(id);
-//   }
-//   @Post()
-//   saveUser(@Body() userDto: UserDto): string {
-//     this.userService.saveUser(userDto);
-//     return Object.assign({
-//       data: { ...userDto },
-//       statusCode: 201,
-//       statusMsg: `saved successfully`,
-//     });
-//   }
-
-
-// }

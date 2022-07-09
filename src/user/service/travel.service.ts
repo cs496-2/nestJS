@@ -30,6 +30,16 @@ export class TravelService {
     return await this.travelRepository.find();
   }
 
+  // async findWithUserCondition(userId: string): Promise<Travel[]>{
+  //   return await this.travelRepository.find(
+  //     {
+  //       where: {
+  //         travel: {travelId: travelId}
+  //       }
+  //     }
+  //   )
+  // }
+
   /**
    * 특정 유저 조회
    * @param id

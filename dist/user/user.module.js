@@ -20,13 +20,15 @@ const TravelUserPair_1 = require("./domain/TravelUserPair");
 const travel_controller_1 = require("./controller/travel.controller");
 const travel_service_1 = require("./service/travel.service");
 const travelUserPair_service_1 = require("./service/travelUserPair.service");
+const travelSpend_service_1 = require("./service/travelSpend.service");
+const userSpend_service_1 = require("./service/userSpend.service");
 let UserModule = class UserModule {
 };
 UserModule = __decorate([
     (0, common_1.Module)({
         imports: [typeorm_1.TypeOrmModule.forFeature([User_1.User, Photo_1.Photo, Travel_1.Travel, TravelSpend_1.TravelSpend, UserSpend_1.UserSpend, TravelUserPair_1.TravelUserPair])],
         controllers: [user_controller_1.UserController, travel_controller_1.TravelController],
-        providers: [user_service_1.UserService, travel_service_1.TravelService, travelUserPair_service_1.TravelUserPairService],
+        providers: [user_service_1.UserService, travel_service_1.TravelService, travelUserPair_service_1.TravelUserPairService, travelSpend_service_1.TravelSpendService, userSpend_service_1.UserSpendService],
     })
 ], UserModule);
 exports.UserModule = UserModule;

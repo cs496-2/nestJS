@@ -37,6 +37,20 @@ let TravelUserPairService = class TravelUserPairService {
     findAll() {
         return this.travelUserPairRepository.find();
     }
+    async findWithUserCondition(userId) {
+        return await this.travelUserPairRepository.find({
+            loadRelationIds: {
+                relations: [
+                    'travel',
+                    'user'
+                ],
+                disableMixedMap: true
+            },
+            where: {
+                user: { userId: userId }
+            }
+        });
+    }
     findOne(id) {
         return this.travelUserPairRepository.findOne({ where: {
                 travelUserPairId: id

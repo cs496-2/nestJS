@@ -12,16 +12,16 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TravelService = void 0;
+exports.UserSpendService = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
-const User_1 = require(".././domain/User");
+const User_1 = require("../domain/User");
 const index_1 = require("typeorm/index");
-const Travel_1 = require(".././domain/Travel");
-const TravelUserPair_1 = require(".././domain/TravelUserPair");
-const TravelSpend_1 = require(".././domain/TravelSpend");
-const UserSpend_1 = require(".././domain/UserSpend");
-let TravelService = class TravelService {
+const Travel_1 = require("../domain/Travel");
+const TravelUserPair_1 = require("../domain/TravelUserPair");
+const TravelSpend_1 = require("../domain/TravelSpend");
+const UserSpend_1 = require("../domain/UserSpend");
+let UserSpendService = class UserSpendService {
     constructor(userRepository, travelRepository, travelUserPairRepository, travelSpendRepository, userSpendRepository) {
         this.userRepository = userRepository;
         this.travelRepository = travelRepository;
@@ -35,21 +35,29 @@ let TravelService = class TravelService {
         this.userSpendRepository = userSpendRepository;
     }
     async findAll() {
-        return await this.travelRepository.find();
+        return await this.userSpendRepository.find();
+    }
+    async findWithUserTravelCondition(travelId, userId) {
+        return await this.userSpendRepository.find({
+            where: {
+                travel: { travelId: travelId },
+                user: { userId: userId }
+            }
+        });
     }
     async findOne(id) {
-        return await this.travelRepository.findOne({ where: {
-                travelId: id
+        return await this.userSpendRepository.findOne({ where: {
+                userSpendId: id
             } });
     }
-    async saveTravel(travel) {
-        await this.travelRepository.save(travel);
+    async saveUserSpend(userSpend) {
+        await this.userSpendRepository.save(userSpend);
     }
-    async deleteTravel(id) {
-        await this.travelRepository.delete({ travelId: id });
+    async deleteUserSpend(id) {
+        await this.userSpendRepository.delete({ userSpendId: id });
     }
 };
-TravelService = __decorate([
+UserSpendService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, typeorm_1.InjectRepository)(User_1.User)),
     __param(1, (0, typeorm_1.InjectRepository)(Travel_1.Travel)),
@@ -61,6 +69,6 @@ TravelService = __decorate([
         index_1.Repository,
         index_1.Repository,
         index_1.Repository])
-], TravelService);
-exports.TravelService = TravelService;
-//# sourceMappingURL=travel.service%20copy.js.map
+], UserSpendService);
+exports.UserSpendService = UserSpendService;
+//# sourceMappingURL=userSpend.service.js.map
