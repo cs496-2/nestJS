@@ -20,12 +20,16 @@ __decorate([
     __metadata("design:type", Number)
 ], TravelUserPair.prototype, "travelUserPairId", void 0);
 __decorate([
-    (0, index_1.ManyToOne)(type => Travel_1.Travel, travel => travel.travelUserPairs),
+    (0, index_1.ManyToOne)(type => Travel_1.Travel, travel => travel.travelUserPairs, {
+        onDelete: 'CASCADE'
+    }),
     (0, index_1.JoinColumn)({ name: 'ref_travelId', referencedColumnName: 'travelId' }),
     __metadata("design:type", Travel_1.Travel)
 ], TravelUserPair.prototype, "travel", void 0);
 __decorate([
-    (0, index_1.ManyToOne)(type => User_1.User, user => user.travelUserPairs),
+    (0, index_1.ManyToOne)(type => User_1.User, user => user.travelUserPairs, {
+        onDelete: 'CASCADE'
+    }),
     (0, index_1.JoinColumn)({ name: 'ref_userId', referencedColumnName: 'userId' }),
     __metadata("design:type", User_1.User)
 ], TravelUserPair.prototype, "user", void 0);
@@ -58,7 +62,8 @@ __decorate([
     __metadata("design:type", Number)
 ], TravelUserPair.prototype, "personalEtcSpend", void 0);
 TravelUserPair = __decorate([
-    (0, index_1.Entity)()
+    (0, index_1.Entity)(),
+    (0, index_1.Unique)(['travel', 'user'])
 ], TravelUserPair);
 exports.TravelUserPair = TravelUserPair;
 //# sourceMappingURL=TravelUserPair.js.map

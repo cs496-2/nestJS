@@ -1,17 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from './domain/User';
+import { User } from '../domain/User';
 import { Connection, Repository } from 'typeorm/index';
-import { Travel } from './domain/Travel';
-import { TravelUserPair } from './domain/TravelUserPair';
-import { TravelSpend } from './domain/TravelSpend';
-import { UserSpend } from './domain/UserSpend';
+import { Travel } from '../domain/Travel';
+import { TravelUserPair } from '../domain/TravelUserPair';
+import { TravelSpend } from '../domain/TravelSpend';
+import { UserSpend } from '../domain/UserSpend';
 @Injectable()
-export class UserService {
+export class TravelUserPairService {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
     @InjectRepository(Travel) private travelRepository: Repository<Travel>,
-    @InjectRepository(TravelUserPair) private travelUserPairRepository: Repository<User>,
+    @InjectRepository(TravelUserPair) private travelUserPairRepository: Repository<TravelUserPair>,
     @InjectRepository(TravelSpend) private travelSpendRepository: Repository<TravelSpend>,
     @InjectRepository(UserSpend) private userSpendRepository: Repository<UserSpend>,
     // private connection: Connection
@@ -26,30 +26,38 @@ export class UserService {
   /**
    * User 리스트 조회
    */
-  findAll(): Promise<User[]> {
-    return this.userRepository.find();
+  findAll(): Promise<TravelUserPair[]> {
+    return this.travelUserPairRepository.find();
   }
+
+  // async findWithTravelCondition(findTravel: Travel): Promise<TravelUserPair[]>{
+  //   return await this.travelUserPairRepository.find({
+  //     where: {
+  //       travel: findTravel
+  //     }
+  //   })
+  // }
   /**
    * 특정 유저 조회
    * @param id
    */
-  findOne(id: string): Promise<User> {
-    return this.userRepository.findOne({ where:{
-      userId: id
+  findOne(id: number): Promise<TravelUserPair> {
+    return this.travelUserPairRepository.findOne({ where:{
+      travelUserPairId: id
     } });
   }
   /**
    * 유저 저장
-   * @param user
+   * @param travel
    */
-  async saveUser(user: User): Promise<void> {
-    await this.userRepository.save(user);
+  async saveTravelUserPair(travelUserPair : TravelUserPair): Promise<void> {
+    await this.travelUserPairRepository.save(travelUserPair);
   }
   /**
    * 유저 삭제
    */
-  async deleteUser(id: string): Promise<void> {
-    await this.userRepository.delete({ userId: id });
+  async deleteTravelUserPair(id: number): Promise<void> {
+    await this.travelUserPairRepository.delete({ travelUserPairId: id });
   }
 
 

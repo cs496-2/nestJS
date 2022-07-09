@@ -3,7 +3,7 @@ import { BaseEntity, Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryCo
 import {Travel} from './Travel'
 import { User } from './User';
 @Entity()
-
+@Unique(['travel', 'user'])
 export class TravelUserPair extends BaseEntity{
 
   @PrimaryGeneratedColumn()
@@ -11,13 +11,17 @@ export class TravelUserPair extends BaseEntity{
 
   // @PrimaryColumn()
   // @ManyToOne(() => Travel, travel => travel.travelUserPairs, {primary: true})
-  @ManyToOne(type => Travel, travel => travel.travelUserPairs)
+  @ManyToOne(type => Travel, travel => travel.travelUserPairs,{
+    onDelete: 'CASCADE'
+  })
   @JoinColumn({ name: 'ref_travelId', referencedColumnName: 'travelId' })
   travel: Travel;
 
   // @PrimaryColumn()
   // @ManyToOne(type => User, user => user.travelUserPairs, {primary: true})
-  @ManyToOne(type => User, user => user.travelUserPairs)
+  @ManyToOne(type => User, user => user.travelUserPairs,{
+    onDelete: 'CASCADE'
+  })
   @JoinColumn({ name: 'ref_userId', referencedColumnName: 'userId' })
   user: User;
 

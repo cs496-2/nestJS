@@ -8,8 +8,8 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserModule = void 0;
 const common_1 = require("@nestjs/common");
-const user_controller_1 = require("./user.controller");
-const user_service_1 = require("./user.service");
+const user_controller_1 = require("./controller/user.controller");
+const user_service_1 = require("./service/user.service");
 const typeorm_1 = require("@nestjs/typeorm");
 const User_1 = require("./domain/User");
 const Photo_1 = require("./domain/Photo");
@@ -17,13 +17,16 @@ const Travel_1 = require("./domain/Travel");
 const TravelSpend_1 = require("./domain/TravelSpend");
 const UserSpend_1 = require("./domain/UserSpend");
 const TravelUserPair_1 = require("./domain/TravelUserPair");
+const travel_controller_1 = require("./controller/travel.controller");
+const travel_service_1 = require("./service/travel.service");
+const travelUserPair_service_1 = require("./service/travelUserPair.service");
 let UserModule = class UserModule {
 };
 UserModule = __decorate([
     (0, common_1.Module)({
         imports: [typeorm_1.TypeOrmModule.forFeature([User_1.User, Photo_1.Photo, Travel_1.Travel, TravelSpend_1.TravelSpend, UserSpend_1.UserSpend, TravelUserPair_1.TravelUserPair])],
-        controllers: [user_controller_1.UserController],
-        providers: [user_service_1.UserService],
+        controllers: [user_controller_1.UserController, travel_controller_1.TravelController],
+        providers: [user_service_1.UserService, travel_service_1.TravelService, travelUserPair_service_1.TravelUserPairService],
     })
 ], UserModule);
 exports.UserModule = UserModule;

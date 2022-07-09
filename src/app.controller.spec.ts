@@ -4,8 +4,8 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { Photo } from './user/domain/Photo';
 import { User } from './user/domain/User';
-import { UserController } from './user/user.controller';
-import { UserService } from './user/user.service';
+import { UserController } from './user/controller/user.controller';
+import { UserService } from './user/service/user.service';
 
 // export const getTypeOrmModule = () => {
 //   return TypeOrmModule.forRoot({

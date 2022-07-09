@@ -21,10 +21,19 @@ export class User extends BaseEntity{
   age: number;
   @Column({ default: true })
   isActive: boolean;
-  @OneToMany(type => Photo, photo => photo.user)
+  @OneToMany(type => Photo, photo => photo.user,{
+    onDelete: 'CASCADE',
+    eager: true
+  })
   photos: Photo[]
-  @OneToMany(type => UserSpend, userSpend => userSpend.user)
+  @OneToMany(type => UserSpend, userSpend => userSpend.user,{
+    onDelete: 'CASCADE',
+    eager: true
+  })
   userSpends: UserSpend[]
-  @OneToMany(type => TravelUserPair, travelUserPair => travelUserPair.user)
+  @OneToMany(type => TravelUserPair, travelUserPair => travelUserPair.user,{
+    onDelete: 'CASCADE',
+    eager: true
+  })
   travelUserPairs: TravelUserPair[]
 }

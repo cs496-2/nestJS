@@ -21,67 +21,76 @@ __decorate([
     __metadata("design:type", Number)
 ], Travel.prototype, "travelId", void 0);
 __decorate([
-    (0, index_1.Column)(),
+    (0, index_1.Column)({ nullable: true }),
     __metadata("design:type", String)
 ], Travel.prototype, "travelName", void 0);
 __decorate([
-    (0, index_1.Column)(),
+    (0, index_1.Column)({ nullable: true }),
     __metadata("design:type", String)
 ], Travel.prototype, "travelCountry", void 0);
 __decorate([
-    (0, index_1.Column)(),
+    (0, index_1.Column)({ nullable: true }),
     __metadata("design:type", Date)
 ], Travel.prototype, "startDate", void 0);
 __decorate([
-    (0, index_1.Column)(),
+    (0, index_1.Column)({ nullable: true }),
     __metadata("design:type", Date)
 ], Travel.prototype, "endDate", void 0);
 __decorate([
-    (0, index_1.Column)(),
+    (0, index_1.Column)({ nullable: true }),
     __metadata("design:type", String)
 ], Travel.prototype, "foreignCurrency", void 0);
 __decorate([
-    (0, index_1.Column)(),
+    (0, index_1.Column)({ nullable: true }),
     __metadata("design:type", String)
 ], Travel.prototype, "coverImg", void 0);
 __decorate([
-    (0, index_1.Column)(),
+    (0, index_1.Column)({ nullable: true }),
     __metadata("design:type", Number)
 ], Travel.prototype, "totalSpend", void 0);
 __decorate([
-    (0, index_1.Column)(),
+    (0, index_1.Column)({ nullable: true }),
     __metadata("design:type", Number)
 ], Travel.prototype, "mealSpend", void 0);
 __decorate([
-    (0, index_1.Column)(),
+    (0, index_1.Column)({ nullable: true }),
     __metadata("design:type", Number)
 ], Travel.prototype, "shopSpend", void 0);
 __decorate([
-    (0, index_1.Column)(),
+    (0, index_1.Column)({ nullable: true }),
     __metadata("design:type", Number)
 ], Travel.prototype, "tourSpend", void 0);
 __decorate([
-    (0, index_1.Column)(),
+    (0, index_1.Column)({ nullable: true }),
     __metadata("design:type", Number)
 ], Travel.prototype, "transportSpend", void 0);
 __decorate([
-    (0, index_1.Column)(),
+    (0, index_1.Column)({ nullable: true }),
     __metadata("design:type", Number)
 ], Travel.prototype, "hotelSpend", void 0);
 __decorate([
-    (0, index_1.Column)(),
+    (0, index_1.Column)({ nullable: true }),
     __metadata("design:type", Number)
 ], Travel.prototype, "etcSpend", void 0);
 __decorate([
-    (0, index_1.OneToMany)(type => TravelSpend_1.TravelSpend, travelSpend => travelSpend.travel),
+    (0, index_1.OneToMany)(type => TravelSpend_1.TravelSpend, travelSpend => travelSpend.travel, {
+        onDelete: 'CASCADE',
+        eager: true
+    }),
     __metadata("design:type", Array)
 ], Travel.prototype, "travelSpends", void 0);
 __decorate([
-    (0, index_1.OneToMany)(type => UserSpend_1.UserSpend, userSpend => userSpend.travel),
+    (0, index_1.OneToMany)(type => UserSpend_1.UserSpend, userSpend => userSpend.travel, {
+        onDelete: 'CASCADE',
+        eager: true
+    }),
     __metadata("design:type", Array)
 ], Travel.prototype, "userSpends", void 0);
 __decorate([
-    (0, index_1.OneToMany)(type => TravelUserPair_1.TravelUserPair, travelUserPair => travelUserPair.travel),
+    (0, index_1.OneToMany)(type => TravelUserPair_1.TravelUserPair, travelUserPair => travelUserPair.travel, {
+        onDelete: 'CASCADE',
+        eager: true
+    }),
     __metadata("design:type", Array)
 ], Travel.prototype, "travelUserPairs", void 0);
 Travel = __decorate([

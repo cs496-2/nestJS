@@ -37,15 +37,24 @@ __decorate([
     __metadata("design:type", Boolean)
 ], User.prototype, "isActive", void 0);
 __decorate([
-    (0, index_1.OneToMany)(type => Photo_1.Photo, photo => photo.user),
+    (0, index_1.OneToMany)(type => Photo_1.Photo, photo => photo.user, {
+        onDelete: 'CASCADE',
+        eager: true
+    }),
     __metadata("design:type", Array)
 ], User.prototype, "photos", void 0);
 __decorate([
-    (0, index_1.OneToMany)(type => UserSpend_1.UserSpend, userSpend => userSpend.user),
+    (0, index_1.OneToMany)(type => UserSpend_1.UserSpend, userSpend => userSpend.user, {
+        onDelete: 'CASCADE',
+        eager: true
+    }),
     __metadata("design:type", Array)
 ], User.prototype, "userSpends", void 0);
 __decorate([
-    (0, index_1.OneToMany)(type => TravelUserPair_1.TravelUserPair, travelUserPair => travelUserPair.user),
+    (0, index_1.OneToMany)(type => TravelUserPair_1.TravelUserPair, travelUserPair => travelUserPair.user, {
+        onDelete: 'CASCADE',
+        eager: true
+    }),
     __metadata("design:type", Array)
 ], User.prototype, "travelUserPairs", void 0);
 User = __decorate([

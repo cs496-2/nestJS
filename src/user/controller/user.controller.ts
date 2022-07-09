@@ -1,19 +1,25 @@
 import { Body, Controller, Delete, Get, Param, Post, Res } from '@nestjs/common';
-import { UserDto } from './dto/user.dto';
-import { UserService } from './user.service';
+import { UserDto } from '../dto/user.dto';
+import { UserService } from '../service/user.service';
 // import { TestService } from '../test/test.service';
-import { User } from './domain/User';
+import { User } from '../domain/User';
+import { TravelService } from '../service/travel.service';
+import { Travel } from '../domain/Travel';
 @Controller('user')
 export class UserController {
   constructor(
     private userService: UserService,
+    private travelService: TravelService,
   ) {
     this.userService = userService;
+    this.travelService = travelService;
   }
   // @Get('test')
   // findAnotherTest(): string {
   //   return this.testService.getInfo();
   // }
+
+
   @Get('list')
   async findAll(): Promise<User[]> {
     const userList = await this.userService.findAll();
