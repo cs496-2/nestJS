@@ -46,10 +46,84 @@ export class TravelSpendService {
    * @param id
    */
   async findOne(id: number): Promise<TravelSpend> {
-    return await this.travelSpendRepository.findOne({ where:{
-      travelSpendId: id
-    } });
+    const result = await this.travelSpendRepository.findOne(
+      {
+        loadRelationIds: {
+          relations: [
+            'travel'
+          ],
+          disableMixedMap: true
+        },
+        where: {
+          travelSpendId: id
+        }
+      }
+    );
+    // const result = await this.travelSpendRepository.findOne(
+    //   {
+    //     where: {
+    //       travelSpendId : id
+    //     }
+    //   }
+    // );
+    console.log(result);
+    return result;
+    // return await this.travelSpendRepository.findOne(
+    //   {
+    //     loadRelationIds: {
+    //       relations: [
+    //         'travel'
+    //       ],
+    //       disableMixedMap: true
+    //     },
+    //     where: {
+    //       travel: {travelId: id}
+    //     }
+    //   }
+    // );
   }
+
+  // async findWithUserTravelCondition(userId: string, travelId:number): Promise<TravelUserPair>{
+  //   // const result = await this.travelUserPairRepository.find(
+  //   //   {
+  //   //     loadRelationIds: {
+  //   //       relations: [
+  //   //         'travel',
+  //   //         'user'
+  //   //       ],
+  //   //       disableMixedMap: true
+  //   //     },
+  //   //     // select: [
+  //   //     //   'travelUserPairId',
+  //   //     //   'travel',
+  //   //     //   'user'
+  //   //     // ],
+  //   //     where: {
+  //   //       user: {userId: userId}
+  //   //     }
+  //   //   }
+  //   // );
+  //   // console.log(result);
+  //   // console.log("RESULT [0] is... ");
+  //   // console.log(result[0]);
+  //   // console.log(result[0].user);
+  //   // console.log(`primary result : ${result}`);
+  //   return await this.travelUserPairRepository.findOne(
+  //     {
+  //       loadRelationIds: {
+  //         relations: [
+  //           'travel',
+  //           'user'
+  //         ],
+  //         disableMixedMap: true
+  //       },
+  //       where: {
+  //         user: {userId: userId},
+  //         travel: {travelId: travelId}
+  //       }
+  //     }
+  //   )
+  // }
   /**
    * 유저 저장
    * @param travel

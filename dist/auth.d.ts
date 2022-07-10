@@ -1,1 +1,1 @@
-export declare function validateToken(): Promise<void>;
+export declare function validateToken(userId?: string, token?: string): Promise<boolean>;

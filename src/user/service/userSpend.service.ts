@@ -46,9 +46,22 @@ export class UserSpendService {
    * @param id
    */
   async findOne(id: number): Promise<UserSpend> {
-    return await this.userSpendRepository.findOne({ where:{
-      userSpendId: id
-    } });
+    return await this.userSpendRepository.findOne(
+      
+      {
+        loadRelationIds: {
+          relations: [
+            'travel',
+            'user'
+          ],
+          disableMixedMap: true
+        },
+        where: {
+          userSpendId: id
+        }
+      }
+
+     );
   }
   
   /**

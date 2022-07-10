@@ -34,31 +34,31 @@ __decorate([
     __metadata("design:type", User_1.User)
 ], TravelUserPair.prototype, "user", void 0);
 __decorate([
-    (0, index_1.Column)(),
+    (0, index_1.Column)({ nullable: true }),
     __metadata("design:type", Number)
 ], TravelUserPair.prototype, "personalTotalSpend", void 0);
 __decorate([
-    (0, index_1.Column)(),
+    (0, index_1.Column)({ nullable: true }),
     __metadata("design:type", Number)
 ], TravelUserPair.prototype, "personalMealSpend", void 0);
 __decorate([
-    (0, index_1.Column)(),
+    (0, index_1.Column)({ nullable: true }),
     __metadata("design:type", Number)
 ], TravelUserPair.prototype, "personalShopSpend", void 0);
 __decorate([
-    (0, index_1.Column)(),
+    (0, index_1.Column)({ nullable: true }),
     __metadata("design:type", Number)
 ], TravelUserPair.prototype, "personalTourSpend", void 0);
 __decorate([
-    (0, index_1.Column)(),
+    (0, index_1.Column)({ nullable: true }),
     __metadata("design:type", Number)
 ], TravelUserPair.prototype, "personalTransportSpend", void 0);
 __decorate([
-    (0, index_1.Column)(),
+    (0, index_1.Column)({ nullable: true }),
     __metadata("design:type", Number)
 ], TravelUserPair.prototype, "personalHotelSpend", void 0);
 __decorate([
-    (0, index_1.Column)(),
+    (0, index_1.Column)({ nullable: true }),
     __metadata("design:type", Number)
 ], TravelUserPair.prototype, "personalEtcSpend", void 0);
 TravelUserPair = __decorate([

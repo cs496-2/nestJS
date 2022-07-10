@@ -45,6 +45,10 @@ __decorate([
     __metadata("design:type", String)
 ], Travel.prototype, "coverImg", void 0);
 __decorate([
+    (0, index_1.Column)({ type: 'decimal', precision: 10, scale: 2, nullable: true }),
+    __metadata("design:type", Number)
+], Travel.prototype, "exchangeRate", void 0);
+__decorate([
     (0, index_1.Column)({ nullable: true }),
     __metadata("design:type", Number)
 ], Travel.prototype, "totalSpend", void 0);

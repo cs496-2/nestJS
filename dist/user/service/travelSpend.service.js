@@ -45,9 +45,19 @@ let TravelSpendService = class TravelSpendService {
         });
     }
     async findOne(id) {
-        return await this.travelSpendRepository.findOne({ where: {
+        const result = await this.travelSpendRepository.findOne({
+            loadRelationIds: {
+                relations: [
+                    'travel'
+                ],
+                disableMixedMap: true
+            },
+            where: {
                 travelSpendId: id
-            } });
+            }
+        });
+        console.log(result);
+        return result;
     }
     async saveTravelSpend(travelSpend) {
         await this.travelSpendRepository.save(travelSpend);

@@ -1,7 +1,6 @@
-import { Body, ConsoleLogger, Controller, Delete, Get, Param, Post, Put, Res } from '@nestjs/common';
+ import { Body, ConsoleLogger, Controller, Delete, Get, Param, Post, Put, Res } from '@nestjs/common';
 import { UserDto } from '../dto/user.dto';
 import { UserService } from '../service/user.service';
-// import { TestService } from '../test/test.service';
 import { User } from '../domain/User';
 import { TravelService } from '../service/travel.service';
 import { Travel } from '../domain/Travel';
@@ -33,16 +32,28 @@ export class SpendController {
   
   /*Get Stats for Travel*/
   @Get('stats')
-  async getStats(@Param('travelId') travelId: number, @Param('userId') userId: string): Promise<string> {
-    validateToken();
-    const travelSpendList : TravelSpend[] = await this.travelSpendService.findWithTravelCondition(travelId);
-    const userSpendList: UserSpend[] = await this.userSpendService.findWithUserTravelCondition(travelId, userId);
+  async getStats(@Param('travelId') travelId: number, @Param('userId') userId: string, @Body() body): Promise<Object> {
+    validateToken(userId, body.token);
+    // const travelSpendList : TravelSpend[] = await this.travelSpendService.findWithTravelCondition(travelId);
+    // const userSpendList: UserSpend[] = await this.userSpendService.findWithUserTravelCondition(travelId, userId);
     
-    // console.log(userList);
+    // //travelspendlist와 userspendlist 를 검색 후 합쳐서 반환
+    // return Object.assign({
+    //   data: {
+    //     travelSpendList,
+    //     userSpendList
+    //   },
+    //   statusCode: 200,
+    //   statusMsg: `데이터 조회가 성공적으로 완료되었습니다.`,
+    // });
+    const travelForStat : Travel = await this.travelService.findOne(travelId);
+    const travelUserPairForStat: TravelUserPair = await this.travelUserPairService.findWithUserTravelCondition(userId, travelId);
+    
+    //travelspendlist와 userspendlist 를 검색 후 합쳐서 반환
     return Object.assign({
       data: {
-        travelSpendList,
-        userSpendList
+        travelForStat,
+        travelUserPairForStat
       },
       statusCode: 200,
       statusMsg: `데이터 조회가 성공적으로 완료되었습니다.`,
@@ -50,14 +61,18 @@ export class SpendController {
   }
 
   @Get('spends')
-  async getSpendList(@Param('userId') userId: string, @Param('travelId') travelId: number): Promise<Object>{
-    validateToken();
+  async getSpendList(@Param('userId') userId: string, @Param('travelId') travelId: number, @Body() body): Promise<Object>{
+    validateToken(userId, body.token);
     const getUserSpendList = await this.userSpendService.findWithUserTravelCondition(travelId, userId);
-    const getTravelSpendList = await this.travelSpendService.findWithTravelCondition(travelId)
-    const resultData = {
-      getUserSpendList,
-      getTravelSpendList
-    };
+    const getTravelSpendList = await this.travelSpendService.findWithTravelCondition(travelId);
+
+    //받아온 userspendlist와 travelspendlist를 병합, date 순으로 sort 후 반환
+    const resultData = [
+      ...getUserSpendList,
+      ...getTravelSpendList
+    ];
+    resultData.sort((a, b) => (a.createdDate > b.createdDate)?  1: -1);
+
     return Object.assign({
       data: resultData,
       statusCode: 200,
@@ -68,42 +83,51 @@ export class SpendController {
   /* Spend Data CRUD Park */
   @Post()
   async postSpend(@Param('userId') userId:string, @Param('travelId') travelId:number, @Body() body): Promise<string>{
-    validateToken();
+    validateToken(userId, body.token);
+
     let newSpend;
+
+    //userspend인지 여부에 확인 후 저장
     if(body.isUserSpend){
+      //새 userspend entity 생성
       newSpend = new UserSpend();
       newSpend.travel = await this.travelService.findOne(travelId);
       newSpend.user = await this.userService.findOne(userId);
       newSpend.spendName = body.spendName;
-      newSpend.createdDate = body.createdDate;
+      newSpend.createdDate = new Date(body.createdDate);
       newSpend.spendAmount = body.spendAmount;
       newSpend.useWon = body.useWon;
       newSpend.spendCategory = body.spendCategory;
+      //새 entity 저장
       await this.userSpendService.saveUserSpend(newSpend);
-      const addedSpendAmount = newSpend.spendAmount;
+      let addedSpendAmount: number;
+      if(newSpend.useWon){  //원화 쓰는지 여부에 따른 소비량 갱신
+        addedSpendAmount = newSpend.spendAmount;
+      }else{
+        addedSpendAmount = newSpend.spendAmount * newSpend.travel.exchangeRate;
+      }
       const addedSpendCategory = newSpend.spendCategory;
-      console.log(addedSpendAmount);
-      console.log(addedSpendCategory);
       const updateTravelUserPair = await this.travelUserPairService.findWithUserTravelCondition(userId, travelId);
-      updateTravelUserPair.personalTotalSpend += addedSpendAmount;
+      //유저의 개인지출을 갱신
+      updateTravelUserPair.personalTotalSpend = updateTravelUserPair.personalTotalSpend + addedSpendAmount;
       switch(addedSpendCategory){
         case 0:
-          updateTravelUserPair.personalMealSpend += addedSpendAmount;
+          updateTravelUserPair.personalMealSpend = updateTravelUserPair.personalMealSpend + addedSpendAmount;
           break;
         case 1:
-          updateTravelUserPair.personalShopSpend += addedSpendAmount;
+          updateTravelUserPair.personalShopSpend = updateTravelUserPair.personalShopSpend + addedSpendAmount;
           break;
         case 2:
-          updateTravelUserPair.personalTourSpend += addedSpendAmount;
+          updateTravelUserPair.personalTourSpend = updateTravelUserPair.personalTourSpend + addedSpendAmount;
           break;
         case 3:
-          updateTravelUserPair.personalTransportSpend += addedSpendAmount;
+          updateTravelUserPair.personalTransportSpend = updateTravelUserPair.personalTransportSpend + addedSpendAmount;
           break;
         case 4:
-          updateTravelUserPair.personalHotelSpend += addedSpendAmount;
+          updateTravelUserPair.personalHotelSpend = updateTravelUserPair.personalHotelSpend + addedSpendAmount;
           break;
         case 5:
-          updateTravelUserPair.personalEtcSpend += addedSpendAmount;
+          updateTravelUserPair.personalEtcSpend = updateTravelUserPair.personalEtcSpend + addedSpendAmount;
           break;
       }
       await this.travelUserPairService.saveTravelUserPair(updateTravelUserPair);
@@ -111,12 +135,17 @@ export class SpendController {
       newSpend = new TravelSpend();
       newSpend.travel = await this.travelService.findOne(travelId);
       newSpend.spendName = body.spendName;
-      newSpend.createdDate = body.createdDate;
+      newSpend.createdDate = new Date(body.createdDate);
       newSpend.spendAmount = body.spendAmount;
       newSpend.useWon = body.useWon;
       newSpend.spendCategory = body.spendCategory;
       await this.travelSpendService.saveTravelSpend(newSpend);
-      const addedSpendAmount = newSpend.spendAmount;
+      let addedSpendAmount;
+      if(newSpend.useWon){ //원화 쓰는지 여부에 따른 소비량 갱신
+        addedSpendAmount = newSpend.spendAmount;
+      }else{
+        addedSpendAmount = newSpend.spendAmount * newSpend.travel.exchangeRate;
+      }
       const addedSpendCategory = newSpend.spendCategory;
       console.log(addedSpendAmount);
       console.log(addedSpendCategory);
@@ -148,6 +177,8 @@ export class SpendController {
     }
     const getUserSpendList = await this.userSpendService.findWithUserTravelCondition(travelId, userId);
     const getTravelSpendList = await this.travelSpendService.findWithTravelCondition(travelId)
+    
+    //유저의 개인지출 갱신 이후, 지출 목록으로 돌아가기 위해 개인지출/공동지출목록 반환
     const resultData = {
       getUserSpendList,
       getTravelSpendList
@@ -161,9 +192,10 @@ export class SpendController {
       statusMsg: '데이터 삽입이 성공적으로 완료되었습니다.',
     })
   }
+
   @Get(':spendId')
   async getSpend(@Param('userId') userId:string, @Param('travelId') travelId:number, @Param('spendId') spendId:number, @Body() body): Promise<string>{
-    validateToken();
+    validateToken(userId, body.token);
     let getSpend;
     if(body.isUserSpend){
       //나중에 여기에 userId와 travelId와 spendId가 유효한지 검증하는 로직 필요
@@ -181,19 +213,34 @@ export class SpendController {
   }
   @Put(':spendId')
   async putSpend(@Param('userId') userId:string, @Param('travelId') travelId:number, @Param('spendId') spendId: number, @Body() body): Promise<string>{
-    validateToken();
+    validateToken(userId, body.token);
     let updateSpend;
     if(body.isUserSpend){
+      //갱신할 지출 불러오기
       updateSpend = await this.userSpendService.findOne(spendId);
-      const deletedSpendAmount = updateSpend.spendAmount;
+      //차감할 기존 지출 내역 정보 저장
+      let deletedSpendAmount;
+      if(updateSpend.useWon){ //원화 쓰는지 여부에 따른 소비량 갱신
+        deletedSpendAmount = updateSpend.spendAmount;
+      }else{
+        deletedSpendAmount = updateSpend.spendAmount * (await this.travelService.findOne(updateSpend.travel.travelId)).exchangeRate;
+      }
       const deletedSpendCategory = updateSpend.spendCategory;
+      //갱신할 지출의 정보 갱신 후 저장
       updateSpend.spendName = body.spendName;
-      updateSpend.createdDate = body.createdDate;
+      updateSpend.createdDate = new Date(body.createdDate);
       updateSpend.spendAmount = body.spendAmount;
       updateSpend.useWon = body.useWon;
       updateSpend.spendCategory = body.spendCategory;
       await this.userSpendService.saveUserSpend(updateSpend);
-      const addedSpendAmount = updateSpend.spendAmount;
+
+      //기존 지출금액과 카테고리만큼 유저 개인지출에서 차감
+      let addedSpendAmount;
+      if(updateSpend.useWon){ //원화 쓰는지 여부에 따른 소비량 갱신
+        addedSpendAmount = updateSpend.spendAmount;
+      }else{
+        addedSpendAmount = updateSpend.spendAmount * (await this.travelService.findOne(updateSpend.travel.travelId)).exchangeRate;
+      }
       const addedSpendCategory = updateSpend.spendCategory;
       const updateTravelUserPair = await this.travelUserPairService.findWithUserTravelCondition(userId, travelId);
       updateTravelUserPair.personalTotalSpend -= deletedSpendAmount;
@@ -217,6 +264,7 @@ export class SpendController {
           updateTravelUserPair.personalEtcSpend -= deletedSpendAmount;
           break;
       }
+      //새로운 지출금액과 지출분류 고려하여 유저 개인지출에서 추가
       updateTravelUserPair.personalTotalSpend += addedSpendAmount;
       switch(addedSpendCategory){
         case 0:
@@ -241,15 +289,25 @@ export class SpendController {
       await this.travelUserPairService.saveTravelUserPair(updateTravelUserPair);
     }else{
       updateSpend = await this.travelSpendService.findOne(spendId);
-      const deletedSpendAmount = updateSpend.spendAmount;
+      let deletedSpendAmount;
+      if(updateSpend.useWon){ //원화 쓰는지 여부에 따른 소비량 갱신
+        deletedSpendAmount = updateSpend.spendAmount;
+      }else{
+        deletedSpendAmount = updateSpend.spendAmount * (await this.travelService.findOne(updateSpend.travel.travelId)).exchangeRate;
+      }
       const deletedSpendCategory = updateSpend.spendCategory;
       updateSpend.spendName = body.spendName;
-      updateSpend.createdDate = body.createdDate;
+      updateSpend.createdDate = new Date(body.createdDate);
       updateSpend.spendAmount = body.spendAmount;
       updateSpend.useWon = body.useWon;
       updateSpend.spendCategory = body.spendCategory;
       await this.travelSpendService.saveTravelSpend(updateSpend);
-      const addedSpendAmount = updateSpend.spendAmount;
+      let addedSpendAmount;
+      if(updateSpend.useWon){ //원화 쓰는지 여부에 따른 소비량 갱신
+        addedSpendAmount = updateSpend.spendAmount;
+      }else{
+        addedSpendAmount = updateSpend.spendAmount * (await this.travelService.findOne(updateSpend.travel.travelId)).exchangeRate;
+      }
       const addedSpendCategory = updateSpend.spendCategory;
       const updateTravel = await this.travelService.findOne(travelId);
       updateTravel.totalSpend -= deletedSpendAmount;
@@ -296,6 +354,8 @@ export class SpendController {
       }
       await this.travelService.saveTravel(updateTravel);
     }
+
+    //지출 갱신 완료 후 지출목록으로 돌아가기 위한 개인/공동지출목록 반환
     const getUserSpendList = await this.userSpendService.findWithUserTravelCondition(travelId, userId);
     const getTravelSpendList = await this.travelSpendService.findWithTravelCondition(travelId)
     const resultData = {
@@ -311,14 +371,24 @@ export class SpendController {
       statusMsg: '데이터 수정이 성공적으로 완료되었습니다.',
     })
   }
+
   @Delete('delete/:spendId')
   async deleteSpend(@Param('userId') userId:string, @Param('travelId') travelId:number, @Param('spendId') spendId:number, @Body() body):Promise<string>{
-    validateToken();
+    validateToken(userId, body.token);
     if(body.isUserSpend){
+      //제거할 userspend 불러오기
       const deletedUserSpend = await this.userSpendService.findOne(spendId);
-      const deletedSpendAmount = deletedUserSpend.spendAmount;
+      //제거할 개인지출의 정보 저장
+      let deletedSpendAmount;
+      if(deletedUserSpend.useWon){ //원화 쓰는지 여부에 따른 소비량 갱신
+        deletedSpendAmount = deletedUserSpend.spendAmount;
+      }else{
+        deletedSpendAmount = deletedUserSpend.spendAmount * (await this.travelService.findOne(deletedUserSpend.travel.travelId)).exchangeRate;
+      }
       const deletedSpendCategory = deletedUserSpend.spendCategory;
+      //userspend 제거
       await this.userSpendService.deleteUserSpend(spendId);
+      //유저의 개인지출 정보 갱신을 위해 traveluserpair 불러오기
       const updateTravelUserPair = await this.travelUserPairService.findWithUserTravelCondition(userId, travelId);
       updateTravelUserPair.personalTotalSpend -= deletedSpendAmount;
       switch(deletedSpendCategory){
@@ -344,7 +414,14 @@ export class SpendController {
       await this.travelUserPairService.saveTravelUserPair(updateTravelUserPair);
     }else{
       const deletedTravelSpend = await this.travelSpendService.findOne(spendId);
-      const deletedSpendAmount = deletedTravelSpend.spendAmount;
+      console.log(deletedTravelSpend);
+
+      let deletedSpendAmount;
+      if(deletedTravelSpend.useWon){ //원화 쓰는지 여부에 따른 소비량 갱신
+        deletedSpendAmount = deletedTravelSpend.spendAmount;
+      }else{
+        deletedSpendAmount = deletedTravelSpend.spendAmount * (await this.travelService.findOne(deletedTravelSpend.travel.travelId)).exchangeRate;
+      }
       const deletedSpendCategory = deletedTravelSpend.spendCategory;
       await this.travelSpendService.deleteTravelSpend(spendId);
       const updateTravel = await this.travelService.findOne(travelId);

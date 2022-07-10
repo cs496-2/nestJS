@@ -10,8 +10,8 @@ export declare class SpendController {
     private travelSpendService;
     private userSpendService;
     constructor(travelService: TravelService, travelUserPairService: TravelUserPairService, userService: UserService, travelSpendService: TravelSpendService, userSpendService: UserSpendService);
-    getStats(travelId: number, userId: string): Promise<string>;
-    getSpendList(userId: string, travelId: number): Promise<Object>;
+    getStats(travelId: number, userId: string, body: any): Promise<Object>;
+    getSpendList(userId: string, travelId: number, body: any): Promise<Object>;
     postSpend(userId: string, travelId: number, body: any): Promise<string>;
     getSpend(userId: string, travelId: number, spendId: number, body: any): Promise<string>;
     putSpend(userId: string, travelId: number, spendId: number, body: any): Promise<string>;

@@ -46,9 +46,18 @@ let UserSpendService = class UserSpendService {
         });
     }
     async findOne(id) {
-        return await this.userSpendRepository.findOne({ where: {
+        return await this.userSpendRepository.findOne({
+            loadRelationIds: {
+                relations: [
+                    'travel',
+                    'user'
+                ],
+                disableMixedMap: true
+            },
+            where: {
                 userSpendId: id
-            } });
+            }
+        });
     }
     async saveUserSpend(userSpend) {
         await this.userSpendRepository.save(userSpend);

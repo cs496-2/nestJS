@@ -32,71 +32,51 @@ export class TravelController {
 
 
   /*Get All Travel List */
-  @Get('travels')
-  async findAllTravel(@Param('userId') userId: string): Promise<Travel[]> {
-    validateToken();
-
-    // console.log("for debug");
-    // const testUser = await this.userService.findOne(userId);
-    // console.log(testUser);
-    // console.log("now printing user.traveluserpair");
-    // console.log(testUser.travelUserPairs[0]);
-    // console.log("debug end");
-
-
-    // console.log("find All Travels...");
+  @Get('travels')//유저의 여행 정보 리스트를 get하는 request
+  async findAllTravel(@Param('userId') userId: string, @Body() body): Promise<Travel[]> {
+    validateToken(userId, body.token);
     const travelList : Travel[] = [];
-    // const travelList = await this.travelService.findAll();
     const travelUserPairs = await this.travelUserPairService.findWithUserCondition(userId);
-    // const travelList = await this.travelService.findOne(travelId);
-    // console.log(`travel User Pairs are ... ${travelUserPairs}`);
-    // console.log(`travelUserPairs[0] : ${travelUserPairs[0]}`);
     for (let i = 0 ; i < travelUserPairs.length;i++){
       const element = travelUserPairs[i];
-      // console.log(`element : ${element}`);
-      // console.log(element);
-      // console.log(`element.user: ${element.user}`);
-      // console.log(element.user);
-      // console.log(`element.user.userId : ${element.user.userId}`);
-      // console.log(`element.travel : ${element.travel}`);
-      // console.log(`element.travel.travelId : ${element.travel.travelId}`);
       const addTravel :Travel = await this.travelService.findOne(element.travel.travelId);
-      // console.log("THE FOUND TRAVEL IS BEING ADDED...");
-      // console.log(addTravel);
-      // console.log("TRAVEL LIST BEFORE PUSH");
-      // console.log(travelList);
       travelList.push(addTravel);
-      // console.log("TRAVEL LIST AFTER PUSH");
-      // console.log(travelList);
     }
-    // console.log("Hello World...");
-    // console.log(travelList);
-    // console.log(`all travels are.... ${travelList}`);
     const result = Object.assign({
       data: travelList,
       statusCode: 200,
       statusMsg: `데이터 조회가 성공적으로 완료되었습니다.`,
     });
-    // console.log(result);
     return result; 
   }
 
   
-  @Put('travels')
-  async giveAllTravelWhenLogin(@Param('userId') userId: string): Promise<Travel[]> {
-    validateToken();
+  @Put('travels') //travel 정보 put이 아니라, 로그인 하면 isActive를 put, 그리고 유저의 여행 정보 리스트를 get하는 request
+  async giveAllTravelWhenLogin(@Param('userId') userId: string, @Body() body): Promise<Travel[]> {
+    validateToken(userId, body.token);
 
-    const user = await this.userService.findOne(userId);
-    user.isActive = true;
-    await this.userService.saveUser(user);
+    if(await this.userService.findOne(body.userId) == null){
+      const newUser = new User();
+      newUser.userId = body.userId;
+      newUser.userName = body.userName;
+      newUser.userPassword = body.userPassword;
+      newUser.age = body.age;
+      newUser.isActive = body.isActive;
+      await this.userService.saveUser(newUser);
+    }else{
+      const user = await this.userService.findOne(userId);
+      user.isActive = true;
+      await this.userService.saveUser(user);
 
-    return this.findAllTravel(userId);
+    }
+
+    return this.findAllTravel(userId, body.token);
   }
 
   
-  @Post(':travelId/:addedUserId')
-  async addUserToTravel(@Param('userId') userId: string, @Param('travelId') travelId: number, @Param('addedUserId') addedUserId: string): Promise<Travel[]> {
-    validateToken();
+  @Post(':travelId/:addedUserId') //travel에 참여하는 유저를 추가하는 request
+  async addUserToTravel(@Param('userId') userId: string, @Param('travelId') travelId: number, @Param('addedUserId') addedUserId: string, @Body() body): Promise<Travel[]> {
+    validateToken(userId, body.token);
     const addedUser : User = await this.userService.findOne(addedUserId);
     const addedTravel : Travel = await this.travelService.findOne(travelId);
     const addedTravelUserPair : TravelUserPair = new TravelUserPair();
@@ -111,24 +91,24 @@ export class TravelController {
     addedTravelUserPair.personalEtcSpend = 0;
     await this.travelUserPairService.saveTravelUserPair(addedTravelUserPair);
 
-    return this.findAllTravel(userId);
+    return this.findAllTravel(userId, body);
   }
   
-  @Delete(':travelId/:deletedUserId')
-  async deleteUserFromTravel(@Param('userId') userId: string, @Param('travelId') travelId: number, @Param('deletedUserId') deletedUserId: string): Promise<Travel[]> {
-    validateToken();
+  @Delete(':travelId/:deletedUserId') //travel에 참여하는 유저를 제거하는 request
+  async deleteUserFromTravel(@Param('userId') userId: string, @Param('travelId') travelId: number, @Param('deletedUserId') deletedUserId: string, @Body() body): Promise<Travel[]> {
+    validateToken(userId, body.token);
     const deletedTravelUserPair : TravelUserPair = await this.travelUserPairService.findWithUserTravelCondition(deletedUserId, travelId);
     await this.travelUserPairService.deleteTravelUserPair(deletedTravelUserPair.travelUserPairId);
 
-    return this.findAllTravel(userId);
+    return this.findAllTravel(userId, body);
   }
   
 
 
   /* Travel Data CRUD Part*/
   @Get(':travelId')
-  async getTravelData(@Param('travelId') travelId: number): Promise<string> {
-    validateToken();
+  async getTravelData(@Param('travelId') travelId: number, @Param('userId') userId:string, @Body() body): Promise<string> {
+    validateToken(userId, body.token);
     const resultTravelData = await this.travelService.findOne(travelId);
     const joinedUserList = await this.travelUserPairService.findWithTravelCondition(travelId);
     
@@ -144,15 +124,16 @@ export class TravelController {
 
   @Post('travel')
   async postTravelData(@Body() travelData , @Param('userId') userId: string): Promise<Object> {
-    validateToken();
+    validateToken(userId, travelData.token);
     /*create new Travel*/
     const newTravel : Travel = new Travel();
     newTravel.travelName = travelData.travelName;
     newTravel.travelCountry = travelData.travelCountry;
-    newTravel.startDate = travelData.startDate;
-    newTravel.endDate = travelData.endDate;
+    newTravel.startDate = new Date(travelData.startDate);
+    newTravel.endDate = new Date(travelData.endDate);
     newTravel.foreignCurrency = travelData.foreignCurrency;
     newTravel.coverImg = travelData.coverImg;
+    newTravel.exchangeRate = travelData.exchangeRate;
     newTravel.totalSpend = 0;
     newTravel.mealSpend = 0;
     newTravel.shopSpend = 0;
@@ -194,14 +175,15 @@ export class TravelController {
 
   @Put(':travelId')
   async putTravelData(@Param('travelId') travelId: number, @Param('userId') userId: string, @Body() travelData): Promise<string> {
-    validateToken();
+    validateToken(userId, travelData.token);
     const updateTravel = await this.travelService.findOne(travelId);
     updateTravel.travelName = travelData.travelName;
     updateTravel.travelCountry = travelData.travelCountry;
-    updateTravel.startDate = travelData.startDate;
-    updateTravel.endDate = travelData.endDate;
+    updateTravel.startDate = new Date(travelData.startDate);
+    updateTravel.endDate = new Date(travelData.endDate);
     updateTravel.foreignCurrency = travelData.foreignCurrency;
     updateTravel.coverImg = travelData.coverImg;
+    updateTravel.exchangeRate = travelData.exchangeRate;
 
     await this.travelService.saveTravel(updateTravel);
     
@@ -213,8 +195,8 @@ export class TravelController {
     });
   }
   @Delete(':travelId')
-  async deleteTravelData(@Param('travelId') travelId: number, @Param('userId') userId: string): Promise<string> {
-    validateToken();
+  async deleteTravelData(@Param('travelId') travelId: number, @Param('userId') userId: string, @Body() body): Promise<string> {
+    validateToken(userId, body.token);
     // const userList = await this.userService.findAll();
     // const testvalue : string = travelId + userId;
     

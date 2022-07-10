@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.TravelController = void 0;
 const common_1 = require("@nestjs/common");
 const user_service_1 = require("../service/user.service");
+const User_1 = require("../domain/User");
 const travel_service_1 = require("../service/travel.service");
 const Travel_1 = require("../domain/Travel");
 const travelUserPair_service_1 = require("../service/travelUserPair.service");
@@ -35,8 +36,8 @@ let TravelController = class TravelController {
         this.travelSpendService = travelSpendService;
         this.userSpendService = userSpendService;
     }
-    async findAllTravel(userId) {
-        (0, auth_1.validateToken)();
+    async findAllTravel(userId, body) {
+        (0, auth_1.validateToken)(userId, body.token);
         const travelList = [];
         const travelUserPairs = await this.travelUserPairService.findWithUserCondition(userId);
         for (let i = 0; i < travelUserPairs.length; i++) {
@@ -51,15 +52,26 @@ let TravelController = class TravelController {
         });
         return result;
     }
-    async giveAllTravelWhenLogin(userId) {
-        (0, auth_1.validateToken)();
-        const user = await this.userService.findOne(userId);
-        user.isActive = true;
-        await this.userService.saveUser(user);
-        return this.findAllTravel(userId);
+    async giveAllTravelWhenLogin(userId, body) {
+        (0, auth_1.validateToken)(userId, body.token);
+        if (await this.userService.findOne(body.userId) == null) {
+            const newUser = new User_1.User();
+            newUser.userId = body.userId;
+            newUser.userName = body.userName;
+            newUser.userPassword = body.userPassword;
+            newUser.age = body.age;
+            newUser.isActive = body.isActive;
+            await this.userService.saveUser(newUser);
+        }
+        else {
+            const user = await this.userService.findOne(userId);
+            user.isActive = true;
+            await this.userService.saveUser(user);
+        }
+        return this.findAllTravel(userId, body.token);
     }
-    async addUserToTravel(userId, travelId, addedUserId) {
-        (0, auth_1.validateToken)();
+    async addUserToTravel(userId, travelId, addedUserId, body) {
+        (0, auth_1.validateToken)(userId, body.token);
         const addedUser = await this.userService.findOne(addedUserId);
         const addedTravel = await this.travelService.findOne(travelId);
         const addedTravelUserPair = new TravelUserPair_1.TravelUserPair();
@@ -73,16 +85,16 @@ let TravelController = class TravelController {
         addedTravelUserPair.personalHotelSpend = 0;
         addedTravelUserPair.personalEtcSpend = 0;
         await this.travelUserPairService.saveTravelUserPair(addedTravelUserPair);
-        return this.findAllTravel(userId);
+        return this.findAllTravel(userId, body);
     }
-    async deleteUserFromTravel(userId, travelId, deletedUserId) {
-        (0, auth_1.validateToken)();
+    async deleteUserFromTravel(userId, travelId, deletedUserId, body) {
+        (0, auth_1.validateToken)(userId, body.token);
         const deletedTravelUserPair = await this.travelUserPairService.findWithUserTravelCondition(deletedUserId, travelId);
         await this.travelUserPairService.deleteTravelUserPair(deletedTravelUserPair.travelUserPairId);
-        return this.findAllTravel(userId);
+        return this.findAllTravel(userId, body);
     }
-    async getTravelData(travelId) {
-        (0, auth_1.validateToken)();
+    async getTravelData(travelId, userId, body) {
+        (0, auth_1.validateToken)(userId, body.token);
         const resultTravelData = await this.travelService.findOne(travelId);
         const joinedUserList = await this.travelUserPairService.findWithTravelCondition(travelId);
         return Object.assign({
@@ -95,14 +107,15 @@ let TravelController = class TravelController {
         });
     }
     async postTravelData(travelData, userId) {
-        (0, auth_1.validateToken)();
+        (0, auth_1.validateToken)(userId, travelData.token);
         const newTravel = new Travel_1.Travel();
         newTravel.travelName = travelData.travelName;
         newTravel.travelCountry = travelData.travelCountry;
-        newTravel.startDate = travelData.startDate;
-        newTravel.endDate = travelData.endDate;
+        newTravel.startDate = new Date(travelData.startDate);
+        newTravel.endDate = new Date(travelData.endDate);
         newTravel.foreignCurrency = travelData.foreignCurrency;
         newTravel.coverImg = travelData.coverImg;
+        newTravel.exchangeRate = travelData.exchangeRate;
         newTravel.totalSpend = 0;
         newTravel.mealSpend = 0;
         newTravel.shopSpend = 0;
@@ -131,14 +144,15 @@ let TravelController = class TravelController {
         });
     }
     async putTravelData(travelId, userId, travelData) {
-        (0, auth_1.validateToken)();
+        (0, auth_1.validateToken)(userId, travelData.token);
         const updateTravel = await this.travelService.findOne(travelId);
         updateTravel.travelName = travelData.travelName;
         updateTravel.travelCountry = travelData.travelCountry;
-        updateTravel.startDate = travelData.startDate;
-        updateTravel.endDate = travelData.endDate;
+        updateTravel.startDate = new Date(travelData.startDate);
+        updateTravel.endDate = new Date(travelData.endDate);
         updateTravel.foreignCurrency = travelData.foreignCurrency;
         updateTravel.coverImg = travelData.coverImg;
+        updateTravel.exchangeRate = travelData.exchangeRate;
         await this.travelService.saveTravel(updateTravel);
         return Object.assign({
             data: updateTravel,
@@ -146,8 +160,8 @@ let TravelController = class TravelController {
             statusMsg: `데이터 갱신이 성공적으로 완료되었습니다.`,
         });
     }
-    async deleteTravelData(travelId, userId) {
-        (0, auth_1.validateToken)();
+    async deleteTravelData(travelId, userId, body) {
+        (0, auth_1.validateToken)(userId, body.token);
         await this.travelService.deleteTravel(travelId);
         return Object.assign({
             data: {
@@ -161,15 +175,17 @@ let TravelController = class TravelController {
 __decorate([
     (0, common_1.Get)('travels'),
     __param(0, (0, common_1.Param)('userId')),
+    __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", Promise)
 ], TravelController.prototype, "findAllTravel", null);
 __decorate([
     (0, common_1.Put)('travels'),
     __param(0, (0, common_1.Param)('userId')),
+    __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", Promise)
 ], TravelController.prototype, "giveAllTravelWhenLogin", null);
 __decorate([
@@ -177,8 +193,9 @@ __decorate([
     __param(0, (0, common_1.Param)('userId')),
     __param(1, (0, common_1.Param)('travelId')),
     __param(2, (0, common_1.Param)('addedUserId')),
+    __param(3, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Number, String]),
+    __metadata("design:paramtypes", [String, Number, String, Object]),
     __metadata("design:returntype", Promise)
 ], TravelController.prototype, "addUserToTravel", null);
 __decorate([
@@ -186,15 +203,18 @@ __decorate([
     __param(0, (0, common_1.Param)('userId')),
     __param(1, (0, common_1.Param)('travelId')),
     __param(2, (0, common_1.Param)('deletedUserId')),
+    __param(3, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Number, String]),
+    __metadata("design:paramtypes", [String, Number, String, Object]),
     __metadata("design:returntype", Promise)
 ], TravelController.prototype, "deleteUserFromTravel", null);
 __decorate([
     (0, common_1.Get)(':travelId'),
     __param(0, (0, common_1.Param)('travelId')),
+    __param(1, (0, common_1.Param)('userId')),
+    __param(2, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number]),
+    __metadata("design:paramtypes", [Number, String, Object]),
     __metadata("design:returntype", Promise)
 ], TravelController.prototype, "getTravelData", null);
 __decorate([
@@ -218,8 +238,9 @@ __decorate([
     (0, common_1.Delete)(':travelId'),
     __param(0, (0, common_1.Param)('travelId')),
     __param(1, (0, common_1.Param)('userId')),
+    __param(2, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, String]),
+    __metadata("design:paramtypes", [Number, String, Object]),
     __metadata("design:returntype", Promise)
 ], TravelController.prototype, "deleteTravelData", null);
 TravelController = __decorate([

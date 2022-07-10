@@ -28,19 +28,19 @@ export class TravelUserPair extends BaseEntity{
 
   
 
-  @Column()
+  @Column({nullable:true})
   personalTotalSpend: number;
-  @Column()
+  @Column({nullable:true})
   personalMealSpend: number;
-  @Column()
+  @Column({nullable:true})
   personalShopSpend: number;
-  @Column()
+  @Column({nullable:true})
   personalTourSpend : number;
-  @Column()
+  @Column({nullable:true})
   personalTransportSpend : number;
-  @Column()
+  @Column({nullable:true})
   personalHotelSpend : number;
-  @Column()
+  @Column({nullable:true})
   personalEtcSpend : number;
   // Save code below to remember how to set relation between tables
   // @OneToMany(type => Photo, photo => photo.user)

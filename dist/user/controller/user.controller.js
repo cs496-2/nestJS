@@ -17,6 +17,7 @@ const common_1 = require("@nestjs/common");
 const user_service_1 = require("../service/user.service");
 const User_1 = require("../domain/User");
 const travel_service_1 = require("../service/travel.service");
+const auth_1 = require("../../auth");
 let UserController = class UserController {
     constructor(userService, travelService) {
         this.userService = userService;
@@ -24,7 +25,8 @@ let UserController = class UserController {
         this.userService = userService;
         this.travelService = travelService;
     }
-    async findAll() {
+    async findAll(userId, body) {
+        (0, auth_1.validateToken)(userId, body.token);
         const userList = await this.userService.findAll();
         console.log(userList);
         return Object.assign({
@@ -33,7 +35,8 @@ let UserController = class UserController {
             statusMsg: `데이터 조회가 성공적으로 완료되었습니다.`,
         });
     }
-    async logout(userId) {
+    async logout(userId, body) {
+        (0, auth_1.validateToken)(userId, body.token);
         const user = await this.userService.findOne(userId);
         user.isActive = false;
         await this.userService.saveUser(user);
@@ -45,7 +48,8 @@ let UserController = class UserController {
             statusMsg: '데이터 갱신이 성공적으로 완료되었습니다.',
         });
     }
-    async findOne(id) {
+    async findOne(id, body) {
+        (0, auth_1.validateToken)(id, body.token);
         const foundUser = await this.userService.findOne(id);
         return Object.assign({
             data: foundUser,
@@ -61,7 +65,8 @@ let UserController = class UserController {
             statusMsg: `saved successfully`,
         });
     }
-    async deleteUser(id) {
+    async deleteUser(id, body) {
+        (0, auth_1.validateToken)(id, body.token);
         await this.userService.deleteUser(id);
         return Object.assign({
             data: { userId: id },
@@ -71,23 +76,27 @@ let UserController = class UserController {
     }
 };
 __decorate([
-    (0, common_1.Get)('list'),
+    (0, common_1.Get)('list/:userId'),
+    __param(0, (0, common_1.Param)('userId')),
+    __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Put)(':userId/logout'),
     __param(0, (0, common_1.Param)('userId')),
+    __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "logout", null);
 __decorate([
     (0, common_1.Get)(':userId'),
     __param(0, (0, common_1.Param)('userId')),
+    __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "findOne", null);
 __decorate([
@@ -100,8 +109,9 @@ __decorate([
 __decorate([
     (0, common_1.Delete)(':userId'),
     __param(0, (0, common_1.Param)('userId')),
+    __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", Promise)
 ], UserController.prototype, "deleteUser", null);
 UserController = __decorate([

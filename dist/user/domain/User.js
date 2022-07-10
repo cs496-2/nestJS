@@ -33,7 +33,7 @@ __decorate([
     __metadata("design:type", Number)
 ], User.prototype, "age", void 0);
 __decorate([
-    (0, index_1.Column)({ default: true }),
+    (0, index_1.Column)({ nullable: true }),
     __metadata("design:type", Boolean)
 ], User.prototype, "isActive", void 0);
 __decorate([

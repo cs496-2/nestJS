@@ -35,27 +35,28 @@ let SpendController = class SpendController {
         this.travelSpendService = travelSpendService;
         this.userSpendService = userSpendService;
     }
-    async getStats(travelId, userId) {
-        (0, auth_1.validateToken)();
-        const travelSpendList = await this.travelSpendService.findWithTravelCondition(travelId);
-        const userSpendList = await this.userSpendService.findWithUserTravelCondition(travelId, userId);
+    async getStats(travelId, userId, body) {
+        (0, auth_1.validateToken)(userId, body.token);
+        const travelForStat = await this.travelService.findOne(travelId);
+        const travelUserPairForStat = await this.travelUserPairService.findWithUserTravelCondition(userId, travelId);
         return Object.assign({
             data: {
-                travelSpendList,
-                userSpendList
+                travelForStat,
+                travelUserPairForStat
             },
             statusCode: 200,
             statusMsg: `데이터 조회가 성공적으로 완료되었습니다.`,
         });
     }
-    async getSpendList(userId, travelId) {
-        (0, auth_1.validateToken)();
+    async getSpendList(userId, travelId, body) {
+        (0, auth_1.validateToken)(userId, body.token);
         const getUserSpendList = await this.userSpendService.findWithUserTravelCondition(travelId, userId);
         const getTravelSpendList = await this.travelSpendService.findWithTravelCondition(travelId);
-        const resultData = {
-            getUserSpendList,
-            getTravelSpendList
-        };
+        const resultData = [
+            ...getUserSpendList,
+            ...getTravelSpendList
+        ];
+        resultData.sort((a, b) => (a.createdDate > b.createdDate) ? 1 : -1);
         return Object.assign({
             data: resultData,
             statusCode: 200,
@@ -63,42 +64,46 @@ let SpendController = class SpendController {
         });
     }
     async postSpend(userId, travelId, body) {
-        (0, auth_1.validateToken)();
+        (0, auth_1.validateToken)(userId, body.token);
         let newSpend;
         if (body.isUserSpend) {
             newSpend = new UserSpend_1.UserSpend();
             newSpend.travel = await this.travelService.findOne(travelId);
             newSpend.user = await this.userService.findOne(userId);
             newSpend.spendName = body.spendName;
-            newSpend.createdDate = body.createdDate;
+            newSpend.createdDate = new Date(body.createdDate);
             newSpend.spendAmount = body.spendAmount;
             newSpend.useWon = body.useWon;
             newSpend.spendCategory = body.spendCategory;
             await this.userSpendService.saveUserSpend(newSpend);
-            const addedSpendAmount = newSpend.spendAmount;
+            let addedSpendAmount;
+            if (newSpend.useWon) {
+                addedSpendAmount = newSpend.spendAmount;
+            }
+            else {
+                addedSpendAmount = newSpend.spendAmount * newSpend.travel.exchangeRate;
+            }
             const addedSpendCategory = newSpend.spendCategory;
-            console.log(addedSpendAmount);
-            console.log(addedSpendCategory);
             const updateTravelUserPair = await this.travelUserPairService.findWithUserTravelCondition(userId, travelId);
-            updateTravelUserPair.personalTotalSpend += addedSpendAmount;
+            updateTravelUserPair.personalTotalSpend = updateTravelUserPair.personalTotalSpend + addedSpendAmount;
             switch (addedSpendCategory) {
                 case 0:
-                    updateTravelUserPair.personalMealSpend += addedSpendAmount;
+                    updateTravelUserPair.personalMealSpend = updateTravelUserPair.personalMealSpend + addedSpendAmount;
                     break;
                 case 1:
-                    updateTravelUserPair.personalShopSpend += addedSpendAmount;
+                    updateTravelUserPair.personalShopSpend = updateTravelUserPair.personalShopSpend + addedSpendAmount;
                     break;
                 case 2:
-                    updateTravelUserPair.personalTourSpend += addedSpendAmount;
+                    updateTravelUserPair.personalTourSpend = updateTravelUserPair.personalTourSpend + addedSpendAmount;
                     break;
                 case 3:
-                    updateTravelUserPair.personalTransportSpend += addedSpendAmount;
+                    updateTravelUserPair.personalTransportSpend = updateTravelUserPair.personalTransportSpend + addedSpendAmount;
                     break;
                 case 4:
-                    updateTravelUserPair.personalHotelSpend += addedSpendAmount;
+                    updateTravelUserPair.personalHotelSpend = updateTravelUserPair.personalHotelSpend + addedSpendAmount;
                     break;
                 case 5:
-                    updateTravelUserPair.personalEtcSpend += addedSpendAmount;
+                    updateTravelUserPair.personalEtcSpend = updateTravelUserPair.personalEtcSpend + addedSpendAmount;
                     break;
             }
             await this.travelUserPairService.saveTravelUserPair(updateTravelUserPair);
@@ -107,12 +112,18 @@ let SpendController = class SpendController {
             newSpend = new TravelSpend_1.TravelSpend();
             newSpend.travel = await this.travelService.findOne(travelId);
             newSpend.spendName = body.spendName;
-            newSpend.createdDate = body.createdDate;
+            newSpend.createdDate = new Date(body.createdDate);
             newSpend.spendAmount = body.spendAmount;
             newSpend.useWon = body.useWon;
             newSpend.spendCategory = body.spendCategory;
             await this.travelSpendService.saveTravelSpend(newSpend);
-            const addedSpendAmount = newSpend.spendAmount;
+            let addedSpendAmount;
+            if (newSpend.useWon) {
+                addedSpendAmount = newSpend.spendAmount;
+            }
+            else {
+                addedSpendAmount = newSpend.spendAmount * newSpend.travel.exchangeRate;
+            }
             const addedSpendCategory = newSpend.spendCategory;
             console.log(addedSpendAmount);
             console.log(addedSpendCategory);
@@ -157,7 +168,7 @@ let SpendController = class SpendController {
         });
     }
     async getSpend(userId, travelId, spendId, body) {
-        (0, auth_1.validateToken)();
+        (0, auth_1.validateToken)(userId, body.token);
         let getSpend;
         if (body.isUserSpend) {
             getSpend = await this.userSpendService.findOne(spendId);
@@ -174,19 +185,31 @@ let SpendController = class SpendController {
         });
     }
     async putSpend(userId, travelId, spendId, body) {
-        (0, auth_1.validateToken)();
+        (0, auth_1.validateToken)(userId, body.token);
         let updateSpend;
         if (body.isUserSpend) {
             updateSpend = await this.userSpendService.findOne(spendId);
-            const deletedSpendAmount = updateSpend.spendAmount;
+            let deletedSpendAmount;
+            if (updateSpend.useWon) {
+                deletedSpendAmount = updateSpend.spendAmount;
+            }
+            else {
+                deletedSpendAmount = updateSpend.spendAmount * (await this.travelService.findOne(updateSpend.travel.travelId)).exchangeRate;
+            }
             const deletedSpendCategory = updateSpend.spendCategory;
             updateSpend.spendName = body.spendName;
-            updateSpend.createdDate = body.createdDate;
+            updateSpend.createdDate = new Date(body.createdDate);
             updateSpend.spendAmount = body.spendAmount;
             updateSpend.useWon = body.useWon;
             updateSpend.spendCategory = body.spendCategory;
             await this.userSpendService.saveUserSpend(updateSpend);
-            const addedSpendAmount = updateSpend.spendAmount;
+            let addedSpendAmount;
+            if (updateSpend.useWon) {
+                addedSpendAmount = updateSpend.spendAmount;
+            }
+            else {
+                addedSpendAmount = updateSpend.spendAmount * (await this.travelService.findOne(updateSpend.travel.travelId)).exchangeRate;
+            }
             const addedSpendCategory = updateSpend.spendCategory;
             const updateTravelUserPair = await this.travelUserPairService.findWithUserTravelCondition(userId, travelId);
             updateTravelUserPair.personalTotalSpend -= deletedSpendAmount;
@@ -235,15 +258,27 @@ let SpendController = class SpendController {
         }
         else {
             updateSpend = await this.travelSpendService.findOne(spendId);
-            const deletedSpendAmount = updateSpend.spendAmount;
+            let deletedSpendAmount;
+            if (updateSpend.useWon) {
+                deletedSpendAmount = updateSpend.spendAmount;
+            }
+            else {
+                deletedSpendAmount = updateSpend.spendAmount * (await this.travelService.findOne(updateSpend.travel.travelId)).exchangeRate;
+            }
             const deletedSpendCategory = updateSpend.spendCategory;
             updateSpend.spendName = body.spendName;
-            updateSpend.createdDate = body.createdDate;
+            updateSpend.createdDate = new Date(body.createdDate);
             updateSpend.spendAmount = body.spendAmount;
             updateSpend.useWon = body.useWon;
             updateSpend.spendCategory = body.spendCategory;
             await this.travelSpendService.saveTravelSpend(updateSpend);
-            const addedSpendAmount = updateSpend.spendAmount;
+            let addedSpendAmount;
+            if (updateSpend.useWon) {
+                addedSpendAmount = updateSpend.spendAmount;
+            }
+            else {
+                addedSpendAmount = updateSpend.spendAmount * (await this.travelService.findOne(updateSpend.travel.travelId)).exchangeRate;
+            }
             const addedSpendCategory = updateSpend.spendCategory;
             const updateTravel = await this.travelService.findOne(travelId);
             updateTravel.totalSpend -= deletedSpendAmount;
@@ -306,10 +341,16 @@ let SpendController = class SpendController {
         });
     }
     async deleteSpend(userId, travelId, spendId, body) {
-        (0, auth_1.validateToken)();
+        (0, auth_1.validateToken)(userId, body.token);
         if (body.isUserSpend) {
             const deletedUserSpend = await this.userSpendService.findOne(spendId);
-            const deletedSpendAmount = deletedUserSpend.spendAmount;
+            let deletedSpendAmount;
+            if (deletedUserSpend.useWon) {
+                deletedSpendAmount = deletedUserSpend.spendAmount;
+            }
+            else {
+                deletedSpendAmount = deletedUserSpend.spendAmount * (await this.travelService.findOne(deletedUserSpend.travel.travelId)).exchangeRate;
+            }
             const deletedSpendCategory = deletedUserSpend.spendCategory;
             await this.userSpendService.deleteUserSpend(spendId);
             const updateTravelUserPair = await this.travelUserPairService.findWithUserTravelCondition(userId, travelId);
@@ -338,7 +379,14 @@ let SpendController = class SpendController {
         }
         else {
             const deletedTravelSpend = await this.travelSpendService.findOne(spendId);
-            const deletedSpendAmount = deletedTravelSpend.spendAmount;
+            console.log(deletedTravelSpend);
+            let deletedSpendAmount;
+            if (deletedTravelSpend.useWon) {
+                deletedSpendAmount = deletedTravelSpend.spendAmount;
+            }
+            else {
+                deletedSpendAmount = deletedTravelSpend.spendAmount * (await this.travelService.findOne(deletedTravelSpend.travel.travelId)).exchangeRate;
+            }
             const deletedSpendCategory = deletedTravelSpend.spendCategory;
             await this.travelSpendService.deleteTravelSpend(spendId);
             const updateTravel = await this.travelService.findOne(travelId);
@@ -385,16 +433,18 @@ __decorate([
     (0, common_1.Get)('stats'),
     __param(0, (0, common_1.Param)('travelId')),
     __param(1, (0, common_1.Param)('userId')),
+    __param(2, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, String]),
+    __metadata("design:paramtypes", [Number, String, Object]),
     __metadata("design:returntype", Promise)
 ], SpendController.prototype, "getStats", null);
 __decorate([
     (0, common_1.Get)('spends'),
     __param(0, (0, common_1.Param)('userId')),
     __param(1, (0, common_1.Param)('travelId')),
+    __param(2, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Number]),
+    __metadata("design:paramtypes", [String, Number, Object]),
     __metadata("design:returntype", Promise)
 ], SpendController.prototype, "getSpendList", null);
 __decorate([

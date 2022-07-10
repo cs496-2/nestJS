@@ -10,6 +10,7 @@ export declare class Travel extends BaseEntity {
     endDate: Date;
     foreignCurrency: string;
     coverImg: string;
+    exchangeRate: number;
     totalSpend: number;
     mealSpend: number;
     shopSpend: number;

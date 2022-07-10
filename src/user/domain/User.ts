@@ -19,7 +19,7 @@ export class User extends BaseEntity{
   userPassword: string;
   @Column({nullable:true})
   age: number;
-  @Column({ default: true })
+  @Column({ nullable:true })
   isActive: boolean;
   @OneToMany(type => Photo, photo => photo.user,{
     onDelete: 'CASCADE',

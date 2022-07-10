@@ -5,6 +5,7 @@ import { UserService } from '../service/user.service';
 import { User } from '../domain/User';
 import { TravelService } from '../service/travel.service';
 import { Travel } from '../domain/Travel';
+import { validateToken } from 'src/auth';
 @Controller('user')
 export class UserController {
   constructor(
@@ -20,8 +21,9 @@ export class UserController {
   // }
 
 
-  @Get('list')
-  async findAll(): Promise<User[]> {
+  @Get('list/:userId')
+  async findAll(@Param('userId') userId:string, @Body() body): Promise<User[]> {
+    validateToken(userId, body.token);
     const userList = await this.userService.findAll();
     console.log(userList);
     return Object.assign({
@@ -31,7 +33,8 @@ export class UserController {
     });
   }
   @Put(':userId/logout')
-  async logout(@Param('userId') userId: string): Promise<string>{
+  async logout(@Param('userId') userId: string, @Body() body): Promise<string>{
+    validateToken(userId, body.token);
     const user = await this.userService.findOne(userId);
     user.isActive = false;
     await this.userService.saveUser(user);
@@ -45,7 +48,8 @@ export class UserController {
     })
   }
   @Get(':userId')
-  async findOne(@Param('userId') id: string): Promise<User> {
+  async findOne(@Param('userId') id: string, @Body() body): Promise<User> {
+    validateToken(id, body.token);
     const foundUser = await this.userService.findOne(id);
     return Object.assign({
       data: foundUser,
@@ -55,6 +59,7 @@ export class UserController {
   }
   @Post()
   async saveUser(@Body() user: User): Promise<string> {
+    // validateToken(user.userId, user.token);
     // await this.userService.saveUser({ /* id: this.generateUserId(), */ ...user});
     await this.userService.saveUser(user);
     return Object.assign({
@@ -65,7 +70,8 @@ export class UserController {
     });
   }
   @Delete(':userId')
-  async deleteUser(@Param('userId') id: string): Promise<string> {
+  async deleteUser(@Param('userId') id: string, @Body() body): Promise<string> {
+    validateToken(id, body.token);
     await this.userService.deleteUser(id);
     return Object.assign({
       data: { userId: id },

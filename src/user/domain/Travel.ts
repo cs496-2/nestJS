@@ -20,6 +20,8 @@ export class Travel extends BaseEntity{
   foreignCurrency: string;
   @Column({nullable:true})
   coverImg: string;
+  @Column({type: 'decimal', precision:10, scale:2, nullable:true})
+  exchangeRate:number;   // 환율값, spend 값들에는 useWon  = true일 시 spendamount를 그대로 추가, false일 시 spendamount * exchangeRate 값 추가
   @Column({nullable:true})
   totalSpend:number
   @Column({nullable:true})
