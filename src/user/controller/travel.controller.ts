@@ -1,4 +1,4 @@
-import { Body, ConsoleLogger, Controller, Delete, Get, Param, Post, Put, Res } from '@nestjs/common';
+import { Body, ConsoleLogger, Controller, Delete, Get, Param, Post, Put, Req, Res } from '@nestjs/common';
 import { UserDto } from '../dto/user.dto';
 import { UserService } from '../service/user.service';
 // import { TestService } from '../test/test.service';
@@ -13,6 +13,8 @@ import { TravelSpend } from '../domain/TravelSpend';
 import { TravelSpendService } from '../service/travelSpend.service';
 import { UserSpendService } from '../service/userSpend.service';
 import { UserSpend } from '../domain/UserSpend';
+import { Schedule } from '../domain/Schedule';
+import { ScheduleService } from '../service/schedule.service';
 
 @Controller('user/:userId')
 export class TravelController {
@@ -21,14 +23,95 @@ export class TravelController {
     private travelUserPairService: TravelUserPairService,
     private userService: UserService,
     private travelSpendService: TravelSpendService,
-    private userSpendService: UserSpendService
+    private userSpendService: UserSpendService,
+    private scheduleService: ScheduleService
   ) {
     this.travelService = travelService;
     this.travelUserPairService =travelUserPairService;
     this.userService = userService;
     this.travelSpendService = travelSpendService;
     this.userSpendService = userSpendService;
+    this.scheduleService = scheduleService;
   }
+
+    /*Get Travel's All Schedule List */
+    @Get(':travelId/schedule/list')//유저의 여행 정보 리스트를 get하는 request
+    async findAllSchedule(@Param('userId') userId: string,@Param('travelId') travelId : number, @Body() body): Promise<Schedule[]> {
+      validateToken(userId, body.token);
+      const scheduleList: Schedule[] = await this.scheduleService.findWithTravelCondition(travelId);
+      const returnScheduleList = scheduleList.sort((a, b)=>(( ( new Date(a.date+a.time) ) > ( new Date(b.date+b.time) ) )?1:-1));
+      const result = Object.assign({
+        data: returnScheduleList,
+        statusCode: 200,
+        statusMsg: `데이터 조회가 성공적으로 완료되었습니다.`,
+      });
+      return result; 
+    }
+
+    /*Get Travel's Specific Date's Schedule List */
+    @Get(':travelId/schedule/list/:date')//유저의 여행 정보 리스트를 get하는 request
+    async findDateSchedule(@Param('userId') userId: string,@Param('travelId') travelId : number, @Param('date')date : string,  @Body() body): Promise<Schedule[]> {
+      validateToken(userId, body.token);
+      const scheduleList: Schedule[] = await this.scheduleService.findWithTravelDateCondition(travelId, date);
+      const returnScheduleList = scheduleList.sort((a, b)=>(( ( new Date(a.date+a.time) ) > ( new Date(b.date+b.time) ) )?1:-1));
+      const result = Object.assign({
+        data: returnScheduleList,
+        statusCode: 200,
+        statusMsg: `데이터 조회가 성공적으로 완료되었습니다.`,
+      });
+      return result; 
+    }
+
+    /*Get Travel's All Schedule List */
+    @Post(':travelId/schedule')//유저의 여행 정보 리스트를 get하는 request
+    async postSchedule(@Param('userId') userId: string,@Param('travelId') travelId : number, @Body() body): Promise<Schedule[]> {
+      validateToken(userId, body.token);
+      const newSchedule = new Schedule();
+      newSchedule.travel = await this.travelService.findOne(travelId);
+      newSchedule.scheduleName = body.scheduleName;
+      // console.log(body.scheduleName);
+      // console.log(body.date);
+      // console.log(body.time);
+      // console.log(`${body.date} ${body.time}`);
+      const scheduleDate = new Date(`${body.date} ${body.time}`);
+      // console.log(scheduleDate);
+      // console.log(scheduleDate.toLocaleDateString());
+      newSchedule.date = scheduleDate.toLocaleDateString();
+      // console.log(scheduleDate.toTimeString());
+      newSchedule.time = scheduleDate.toTimeString().substr(0,8);
+      newSchedule.location = body.location;
+      newSchedule.locationX = body.locationX;
+      newSchedule.locationY = body.locationY;
+      // console.log(newSchedule);
+      // console.log(newSchedule.scheduleId);
+      await this.scheduleService.saveSchedule(newSchedule);
+      //일정 추가 후 일정 목록 화면으로 리디렉션
+      const scheduleList: Schedule[] = await this.scheduleService.findWithTravelCondition(travelId);
+      const returnScheduleList = scheduleList.sort((a, b)=>(( ( new Date(a.date+a.time) ) > ( new Date(b.date+b.time) ) )?1:-1));
+      const result = Object.assign({
+        data: returnScheduleList,
+        statusCode: 201,
+        statusMsg: `데이터 추가가 성공적으로 완료되었습니다.`,
+      });
+      return result; 
+    }
+
+    /*Get Travel's All Schedule List */
+    @Delete(':travelId/schedule/:scheduleId')//유저의 여행 정보 리스트를 get하는 request
+    async deleteSchedule(@Param('userId') userId: string,@Param('travelId') travelId : number,@Param('scheduleId') scheduleId : number, @Body() body): Promise<Schedule[]> {
+      validateToken(userId, body.token);
+      await this.scheduleService.deleteSchedule(scheduleId);
+
+      //일정 삭제 후 일정 목록 화면으로 리디렉션
+      const scheduleList: Schedule[] = await this.scheduleService.findWithTravelCondition(travelId);
+      const returnScheduleList = scheduleList.sort((a, b)=>(( ( new Date(a.date+a.time) ) > ( new Date(b.date+b.time) ) )?1:-1));
+      const result = Object.assign({
+        data: returnScheduleList,
+        statusCode: 204,
+        statusMsg: `데이터 삭제가 성공적으로 완료되었습니다.`,
+      });
+      return result; 
+    }
 
 
   /*Get All Travel List */
@@ -53,6 +136,7 @@ export class TravelController {
   
   @Put('travels') //travel 정보 put이 아니라, 로그인 하면 isActive를 put, 그리고 유저의 여행 정보 리스트를 get하는 request
   async giveAllTravelWhenLogin(@Param('userId') userId: string, @Body() body): Promise<Travel[]> {
+    console.log(body);
     validateToken(userId, body.token);
 
     if(await this.userService.findOne(body.userId) == null){
@@ -70,7 +154,7 @@ export class TravelController {
 
     }
 
-    return this.findAllTravel(userId, body.token);
+    return this.findAllTravel(userId, body);
   }
 
   
@@ -108,6 +192,7 @@ export class TravelController {
   /* Travel Data CRUD Part*/
   @Get(':travelId')
   async getTravelData(@Param('travelId') travelId: number, @Param('userId') userId:string, @Body() body): Promise<string> {
+    console.log('travel Detail Info requested');
     validateToken(userId, body.token);
     const resultTravelData = await this.travelService.findOne(travelId);
     const joinedUserList = await this.travelUserPairService.findWithTravelCondition(travelId);

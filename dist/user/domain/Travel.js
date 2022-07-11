@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Travel = void 0;
 const index_1 = require("typeorm/index");
+const Schedule_1 = require("./Schedule");
 const TravelSpend_1 = require("./TravelSpend");
 const TravelUserPair_1 = require("./TravelUserPair");
 const UserSpend_1 = require("./UserSpend");
@@ -97,6 +98,13 @@ __decorate([
     }),
     __metadata("design:type", Array)
 ], Travel.prototype, "travelUserPairs", void 0);
+__decorate([
+    (0, index_1.OneToMany)(type => Schedule_1.Schedule, schedule => schedule.travel, {
+        onDelete: 'CASCADE',
+        eager: true
+    }),
+    __metadata("design:type", Array)
+], Travel.prototype, "schedules", void 0);
 Travel = __decorate([
     (0, index_1.Entity)(),
     (0, index_1.Unique)(['travelId'])

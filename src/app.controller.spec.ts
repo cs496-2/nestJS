@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { Photo } from './user/domain/Photo';
+import { Schedule} from './user/domain/Schedule';
 import { User } from './user/domain/User';
 import { UserController } from './user/controller/user.controller';
 import { UserService } from './user/service/user.service';

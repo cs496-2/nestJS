@@ -1,6 +1,6 @@
 import { PassThrough } from "stream";
 
 export async function validateToken(userId:string = "hello", token:string = "oooo"):Promise<boolean>{
-  PassThrough;
+  console.log("request arrived");
   return true;
 }

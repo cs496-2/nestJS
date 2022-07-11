@@ -11,7 +11,7 @@ const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const app_controller_1 = require("./app.controller");
 const app_service_1 = require("./app.service");
-const Photo_1 = require("./user/domain/Photo");
+const Schedule_1 = require("./user/domain/Schedule");
 const Travel_1 = require("./user/domain/Travel");
 const TravelSpend_1 = require("./user/domain/TravelSpend");
 const TravelUserPair_1 = require("./user/domain/TravelUserPair");
@@ -29,7 +29,7 @@ AppModule = __decorate([
                 username: 'root',
                 password: 'madcampcs496',
                 database: 'test',
-                entities: [User_1.User, Photo_1.Photo, Travel_1.Travel, TravelSpend_1.TravelSpend, UserSpend_1.UserSpend, TravelUserPair_1.TravelUserPair],
+                entities: [User_1.User, Travel_1.Travel, TravelSpend_1.TravelSpend, UserSpend_1.UserSpend, TravelUserPair_1.TravelUserPair, Schedule_1.Schedule],
                 synchronize: true,
             }),
             user_module_1.UserModule],

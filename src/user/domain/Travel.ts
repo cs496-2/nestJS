@@ -1,4 +1,5 @@
 import { BaseEntity, Column, Entity, OneToMany, PrimaryColumn, PrimaryGeneratedColumn, Unique } from 'typeorm/index';
+import { Schedule } from './Schedule';
 import { TravelSpend } from './TravelSpend';
 import { TravelUserPair } from './TravelUserPair';
 import { UserSpend } from './UserSpend';
@@ -54,4 +55,9 @@ export class Travel extends BaseEntity{
     eager: true
   })
   travelUserPairs: TravelUserPair[]
+  @OneToMany(type => Schedule, schedule => schedule.travel,{
+    onDelete: 'CASCADE',
+    eager: true
+  })
+  schedules: Schedule[];
 }

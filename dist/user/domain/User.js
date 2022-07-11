@@ -11,7 +11,6 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.User = void 0;
 const index_1 = require("typeorm/index");
-const Photo_1 = require("./Photo");
 const TravelUserPair_1 = require("./TravelUserPair");
 const UserSpend_1 = require("./UserSpend");
 let User = class User extends index_1.BaseEntity {
@@ -36,13 +35,6 @@ __decorate([
     (0, index_1.Column)({ nullable: true }),
     __metadata("design:type", Boolean)
 ], User.prototype, "isActive", void 0);
-__decorate([
-    (0, index_1.OneToMany)(type => Photo_1.Photo, photo => photo.user, {
-        onDelete: 'CASCADE',
-        eager: true
-    }),
-    __metadata("design:type", Array)
-], User.prototype, "photos", void 0);
 __decorate([
     (0, index_1.OneToMany)(type => UserSpend_1.UserSpend, userSpend => userSpend.user, {
         onDelete: 'CASCADE',

@@ -1,8 +1,8 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { Photo } from './user/domain/Photo';
+import { Schedule } from './user/domain/Schedule';
 import { Travel } from './user/domain/Travel';
 import { TravelSpend } from './user/domain/TravelSpend';
 import { TravelUserPair } from './user/domain/TravelUserPair';
@@ -19,7 +19,7 @@ import { UserModule } from './user/user.module';
     username: 'root',
     password: 'madcampcs496',
     database: 'test',
-    entities: [User, Photo, Travel, TravelSpend, UserSpend, TravelUserPair],
+    entities: [User, Travel, TravelSpend, UserSpend, TravelUserPair, Schedule],
     synchronize: true,
   }),
      UserModule],

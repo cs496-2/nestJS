@@ -1,5 +1,4 @@
 import { BaseEntity, Column, Entity, OneToMany, PrimaryColumn, PrimaryGeneratedColumn, Unique } from 'typeorm/index';
-import { Photo } from './Photo';
 import { TravelUserPair } from './TravelUserPair';
 import { UserSpend } from './UserSpend';
 @Entity()
@@ -21,11 +20,6 @@ export class User extends BaseEntity{
   age: number;
   @Column({ nullable:true })
   isActive: boolean;
-  @OneToMany(type => Photo, photo => photo.user,{
-    onDelete: 'CASCADE',
-    eager: true
-  })
-  photos: Photo[]
   @OneToMany(type => UserSpend, userSpend => userSpend.user,{
     onDelete: 'CASCADE',
     eager: true

@@ -1,4 +1,5 @@
 import { BaseEntity } from 'typeorm/index';
+import { Schedule } from './Schedule';
 import { TravelSpend } from './TravelSpend';
 import { TravelUserPair } from './TravelUserPair';
 import { UserSpend } from './UserSpend';
@@ -21,4 +22,5 @@ export declare class Travel extends BaseEntity {
     travelSpends: TravelSpend[];
     userSpends: UserSpend[];
     travelUserPairs: TravelUserPair[];
+    schedules: Schedule[];
 }
