@@ -102,7 +102,7 @@ export class SpendController {
       await this.userSpendService.saveUserSpend(newSpend);
       let addedSpendAmount: number;
       if(newSpend.useWon){  //원화 쓰는지 여부에 따른 소비량 갱신
-        addedSpendAmount = newSpend.spendAmount;
+        addedSpendAmount = newSpend.spendAmount * 1;;
       }else{
         addedSpendAmount = newSpend.spendAmount * newSpend.travel.exchangeRate;
       }
@@ -142,7 +142,7 @@ export class SpendController {
       await this.travelSpendService.saveTravelSpend(newSpend);
       let addedSpendAmount;
       if(newSpend.useWon){ //원화 쓰는지 여부에 따른 소비량 갱신
-        addedSpendAmount = newSpend.spendAmount;
+        addedSpendAmount = newSpend.spendAmount * 1;;
       }else{
         addedSpendAmount = newSpend.spendAmount * newSpend.travel.exchangeRate;
       }
@@ -372,12 +372,14 @@ export class SpendController {
     })
   }
 
-  @Delete('delete/:spendId')
-  async deleteSpend(@Param('userId') userId:string, @Param('travelId') travelId:number, @Param('spendId') spendId:number, @Body() body):Promise<string>{
+  @Delete('delete/:spendId/:isUserSpend')
+  async deleteSpend(@Param('userId') userId:string, @Param('travelId') travelId:number, @Param('spendId') spendId:number, @Body() body, @Param('isUserSpend') isUserSpend: string):Promise<string>{
     validateToken(userId, body.token);
-    if(body.isUserSpend){
+    console.log(`isUserSpend??? : ${isUserSpend}\n type of isUserSpend??? : ${typeof isUserSpend}`);
+    if(isUserSpend == 'true'){
       //제거할 userspend 불러오기
       const deletedUserSpend = await this.userSpendService.findOne(spendId);
+      console.log(deletedUserSpend);
       //제거할 개인지출의 정보 저장
       let deletedSpendAmount;
       if(deletedUserSpend.useWon){ //원화 쓰는지 여부에 따른 소비량 갱신

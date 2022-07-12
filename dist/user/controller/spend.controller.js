@@ -78,7 +78,8 @@ let SpendController = class SpendController {
             await this.userSpendService.saveUserSpend(newSpend);
             let addedSpendAmount;
             if (newSpend.useWon) {
-                addedSpendAmount = newSpend.spendAmount;
+                addedSpendAmount = newSpend.spendAmount * 1;
+                ;
             }
             else {
                 addedSpendAmount = newSpend.spendAmount * newSpend.travel.exchangeRate;
@@ -119,7 +120,8 @@ let SpendController = class SpendController {
             await this.travelSpendService.saveTravelSpend(newSpend);
             let addedSpendAmount;
             if (newSpend.useWon) {
-                addedSpendAmount = newSpend.spendAmount;
+                addedSpendAmount = newSpend.spendAmount * 1;
+                ;
             }
             else {
                 addedSpendAmount = newSpend.spendAmount * newSpend.travel.exchangeRate;
@@ -340,10 +342,12 @@ let SpendController = class SpendController {
             statusMsg: '데이터 수정이 성공적으로 완료되었습니다.',
         });
     }
-    async deleteSpend(userId, travelId, spendId, body) {
+    async deleteSpend(userId, travelId, spendId, body, isUserSpend) {
         (0, auth_1.validateToken)(userId, body.token);
-        if (body.isUserSpend) {
+        console.log(`isUserSpend??? : ${isUserSpend}\n type of isUserSpend??? : ${typeof isUserSpend}`);
+        if (isUserSpend == 'true') {
             const deletedUserSpend = await this.userSpendService.findOne(spendId);
+            console.log(deletedUserSpend);
             let deletedSpendAmount;
             if (deletedUserSpend.useWon) {
                 deletedSpendAmount = deletedUserSpend.spendAmount;
@@ -477,13 +481,14 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], SpendController.prototype, "putSpend", null);
 __decorate([
-    (0, common_1.Delete)('delete/:spendId'),
+    (0, common_1.Delete)('delete/:spendId/:isUserSpend'),
     __param(0, (0, common_1.Param)('userId')),
     __param(1, (0, common_1.Param)('travelId')),
     __param(2, (0, common_1.Param)('spendId')),
     __param(3, (0, common_1.Body)()),
+    __param(4, (0, common_1.Param)('isUserSpend')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Number, Number, Object]),
+    __metadata("design:paramtypes", [String, Number, Number, Object, String]),
     __metadata("design:returntype", Promise)
 ], SpendController.prototype, "deleteSpend", null);
 SpendController = __decorate([

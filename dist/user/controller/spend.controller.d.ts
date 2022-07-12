@@ -15,5 +15,5 @@ export declare class SpendController {
     postSpend(userId: string, travelId: number, body: any): Promise<string>;
     getSpend(userId: string, travelId: number, spendId: number, body: any): Promise<string>;
     putSpend(userId: string, travelId: number, spendId: number, body: any): Promise<string>;
-    deleteSpend(userId: string, travelId: number, spendId: number, body: any): Promise<string>;
+    deleteSpend(userId: string, travelId: number, spendId: number, body: any, isUserSpend: string): Promise<string>;
 }
